@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "HUD/MyUserWidget.h"
 #include "InGamePauseUI.generated.h"
 
 class UButton;
 
 /**
- * Widget generated After "ESC" key pressed in game mode
+ * Widget generated After "F10" key pressed in game mode
  */
 UCLASS()
-class RPG_PROJECT_API UInGamePauseUI : public UUserWidget
+class RPG_PROJECT_API UInGamePauseUI : public UMyUserWidget
 {
 	GENERATED_BODY()
 
@@ -26,16 +26,13 @@ protected:
 	
 	
 	UFUNCTION()
-	virtual void OnRestartButtonClick();
+	void OnOptionButtonClick();
 	
 	UFUNCTION()
-	virtual void OnOptionButtonClick();
+	void OnBackToMainMenuButtonClick();
 	
 	UFUNCTION()
-	virtual void OnBackToMainMenuButtonClick();
-	
-	UFUNCTION()
-	virtual void OnQuitButtonClick();
+	void OnQuitButtonClick();
 
 	
 private:

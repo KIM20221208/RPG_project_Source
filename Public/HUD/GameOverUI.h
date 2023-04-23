@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "HUD/MyUserWidget.h"
 #include "GameOverUI.generated.h"
 
 class UButton;
@@ -12,17 +12,14 @@ class UButton;
  * Widget generated After RPG_projectCharacter dead
  */
 UCLASS()
-class RPG_PROJECT_API UGameOverUI : public UUserWidget
+class RPG_PROJECT_API UGameOverUI : public UMyUserWidget
 {
 	GENERATED_BODY()
 
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
-
-	UFUNCTION()
-	virtual void OnRestartButtonClick();
-
+	
 	
 private:
 	// Button widget: Restart game after user click

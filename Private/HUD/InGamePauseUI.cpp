@@ -32,13 +32,23 @@ void UInGamePauseUI::OnResumeButtonClick()
 			UUserWidget::RemoveFromParent();
 			// set back input mode to "game"
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
-			PlayerController->bShowMouseCursor = false;
 			UGameplayStatics::SetGamePaused(World, false);
+			PlayerController->bShowMouseCursor = false;
 		}
 	}
 }
 
-void UInGamePauseUI::OnRestartButtonClick()
+void UInGamePauseUI::OnOptionButtonClick()
+{
+	// TODO: Option Menu
+}
+
+void UInGamePauseUI::OnBackToMainMenuButtonClick()
+{
+	// TODO: Back To Main Menu, && Main Menu
+}
+
+void UInGamePauseUI::OnQuitButtonClick()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -46,31 +56,8 @@ void UInGamePauseUI::OnRestartButtonClick()
 		APlayerController* PlayerController = World->GetFirstPlayerController();
 		if (PlayerController)
 		{
-			// set input mode from "gameOnly" to "UIOnly"
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerController);
-			// Open a certain level 
-			UGameplayStatics::OpenLevel(World, FName("Minimal_Default"));
-			// Remove widget from it's parent, also be removed if bounded with screen 
-			UUserWidget::RemoveFromParent();
-			// set back input mode to "game"
-			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
+			UKismetSystemLibrary::QuitGame(World, PlayerController, EQuitPreference::Quit, false);
 			
 		}
 	}
-	
-}
-
-void UInGamePauseUI::OnOptionButtonClick()
-{
-	
-}
-
-void UInGamePauseUI::OnBackToMainMenuButtonClick()
-{
-	
-}
-
-void UInGamePauseUI::OnQuitButtonClick()
-{
-	
 }
