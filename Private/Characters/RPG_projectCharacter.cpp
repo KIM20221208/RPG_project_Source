@@ -91,6 +91,8 @@ void ARPG_projectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction(TEXT("Attack"), IE_Pressed, this, &ARPG_projectCharacter::Attack);
 	// P211.Bind Dodge action to input
 	PlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &ARPG_projectCharacter::Dodge);
+	// Bind "ESC" action input to pausing the game
+	PlayerInputComponent->BindAction(TEXT("InGamePause"), IE_Pressed, this, &ARPG_projectCharacter::ESCKeyPressed);
 	
 }
 
@@ -270,6 +272,19 @@ void ARPG_projectCharacter::Dodge()
 	
 }
 
+void ARPG_projectCharacter::ESCKeyPressed()
+{
+	if (RPG_projectHUD->GetHUDState() == EHUDState::EHS_InGaming)
+	{
+		RPG_projectHUD->ShowInGamePauseUI();
+	}
+	else if (RPG_projectHUD->GetHUDState() == EHUDState::EHS_IGamePause)
+	{
+		RPG_projectHUD->CloseInGamePauseUI();
+	}
+	
+}
+
  void ARPG_projectCharacter::EquipWeapon(AWeapon* Weapon)
 {
 	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
@@ -333,7 +348,7 @@ void ARPG_projectCharacter::Die_Implementation()
 {
 	Super::Die_Implementation();
 	ActionState = EActionState::EAS_Dead;
-	RPG_projectHUD->GameOver();
+	RPG_projectHUD->ShowGameOverUI();
 	
 }
 

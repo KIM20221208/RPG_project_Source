@@ -17,6 +17,7 @@ class RPG_PROJECT_API UGameOverUI : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
 
 	UFUNCTION()

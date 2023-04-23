@@ -97,7 +97,8 @@ protected:
 	bool IsActionOccupied();
 	// P211.Declare input
 	void Dodge();
-	
+	// Change view port to "InGamePause" UI
+	void ESCKeyPressed();
 
 	/** 
 	* Combat

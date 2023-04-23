@@ -9,6 +9,7 @@
 
 class URPG_projectOverlay;
 class UGameOverUI;
+class UInGamePauseUI;
 
 /**
  * P197.Default HUD of game mode
@@ -21,12 +22,21 @@ class RPG_PROJECT_API ARPG_projectHUD : public AHUD
 public:
 	// Change the player HUD to game over UI, after player dead
 	// Called in RPG_projectCharacter
-	void GameOver();
+	void ShowGameOverUI();
+
+	//
+	void ShowInGamePauseUI();
+	void CloseInGamePauseUI();
+
+	//
+	void ShowRPG_projectOverlay();
+	
 	
 	/** 
 	 * Getter & Setter
 	 */
 	FORCEINLINE URPG_projectOverlay* GetRPG_ProjectOverlay() const { return RPG_projectOverlay; }
+	FORCEINLINE EHUDState GetHUDState() const { return HUDState; }
 	
 protected:
 	// P197.
@@ -47,6 +57,12 @@ private:
 	
 	UPROPERTY()
 	UGameOverUI* GameOverUI;
+
+	UPROPERTY(EditDefaultsOnly, Category = RPG_project)
+	TSubclassOf<UInGamePauseUI> UInGamePauseClass;
+	
+	UPROPERTY()
+	UInGamePauseUI* InGamePauseUI;
 	
 	// Declare && Initialize HUDState
 	EHUDState HUDState = EHUDState::EHS_InGaming;
