@@ -7,16 +7,17 @@
 
 void UHealthBarComponent::SetHealthPercent(float Percent)
 {
-	// P154.每次检查进行转换非常耗费资源，所以只在空指针时进行转换赋值
+	// P154.フレームごとに更新するのが無駄な性能を消耗する、よってnullptrの時だけで体力HUDを更新する。
 	if (HealthBarWidget == nullptr)
 	{
-		// P154.检查此组件控制的部件组件是否为 UHealthBar 类
+		// P154.本WidgetかコントロールするcomponentがUHealthBarクラスかを判断する。
 		HealthBarWidget = Cast<UHealthBar>(GetUserWidgetObject());
+		
 	}
 
 	if (HealthBarWidget && HealthBarWidget->HealthBar)
 	{
-		// P154.设置进度条（血条）的百分比
+		// P154.キャラの体力のPercentageを更新する。
 		HealthBarWidget->HealthBar->SetPercent(Percent);
 
 	}

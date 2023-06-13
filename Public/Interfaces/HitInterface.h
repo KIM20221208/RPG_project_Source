@@ -22,9 +22,9 @@ class RPG_PROJECT_API IHitInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	// P122.virtual function：called in AWeapon class When get hit，pass impact point and weapon owner 
-	// P140.For implement this function both editable in C++ and blueprint, added UFUNCTION(BlueprintNativeEvent) and delete some key words
-	// P189.Improving directional hit reaction, when weapon penetrate character's body  
+	// P122.仮想関数宣言：攻撃された時、AWeaponクラスからcallされる, pass impact point and weapon owner 
+	// P140.本メソッドをC++とエディタ両方から修正可能にする為、, UFUNCTION(BlueprintNativeEvent)マクロを加える
+	// P189.当たり判定が発生した位置が発生した位置がキャラの被ダメージ動画をプレイする事を追加
 	UFUNCTION(BlueprintNativeEvent)
 	void GetHit(const FVector& ImpactPoint, AActor* Hitter);
 

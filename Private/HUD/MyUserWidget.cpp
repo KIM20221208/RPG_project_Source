@@ -13,16 +13,17 @@ void UMyUserWidget::OnRestartButtonClick()
 		APlayerController* PlayerController = World->GetFirstPlayerController();
 		if (PlayerController)
 		{
-			// set input mode from "gameOnly" to "UIOnly"
+			// Input modeを"gameOnly"から"UIOnly"に変更する。
 			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerController);
-			// Open a certain level 
+			// 特定のLevelを開く。
 			UGameplayStatics::OpenLevel(World, FName("Minimal_Default"));
-			// Remove widget from it's parent, also be removed if bounded with screen 
+			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
 			UUserWidget::RemoveFromParent();
-			// set back input mode to "game"
+			// Input modeを"game"に戻す。
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 			
 		}
+		
 	}
 	
 }

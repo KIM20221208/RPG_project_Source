@@ -15,28 +15,32 @@
 #include "Itmes/Souls/Soul.h"
 #include "Itmes/Treasures/Treasure.h"
 
- // Sets default values
+// Sets default values
 ARPG_projectCharacter::ARPG_projectCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// P72.初始化“使用控制器旋转”
-	bUseControllerRotationPitch = false; 
+	// P72.“Use Controller Rotation”の初期設定。
+	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// P74.调用角色移动类中的 “将旋转朝向运动”成员函数，使角色朝向前进方向
+	// P74.キャラの向きを移動方向に向う。
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 400.f, 0.f);
 
-	// P183.设置角色网格体的碰撞预设
+	// P183.キャラモデルの"Collision Preset"に関する初期設定。
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
 
+
+	/**
+	* Componentの作成及び初期設定
+	*/
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(GetRootComponent());
 	SpringArm->TargetArmLength = 300.f;
@@ -44,14 +48,12 @@ ARPG_projectCharacter::ARPG_projectCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-	// P75.使用 factory function 创建Groom组件类的头发
+	// P75
 	Hair = CreateDefaultSubobject<UGroomComponent>(TEXT("Hair"));
-	// P75.建立连接到Mesh
 	Hair->SetupAttachment(GetMesh());
-	// P75.把创建的头发插到“head”插件
 	Hair->AttachmentName = FString("head");
 
-	// P75.使用 模板函数 创建Groom组件类的眉毛
+	// P75
 	Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrow"));
 	Eyebrows->SetupAttachment(GetMesh());
 	Eyebrows->AttachmentName = FString("head");
@@ -62,12 +64,14 @@ ARPG_projectCharacter::ARPG_projectCharacter()
 void ARPG_projectCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// P212. regenerate stamina (default regenerate value is 8.f) every frame,
+	// P212. フレームごとにスタミナを回復する、default regenerate value is 8.f / frame.
 	if (Attributes)
 	{
 		Attributes->RegenStamina(DeltaTime);
 		RPG_projectOverlay->SetStaminaProgressBarPercent(Attributes->GetStaminaPercent());
+		
 	}
+	
 }
 
 // Called to bind functionality to input
@@ -75,23 +79,23 @@ void ARPG_projectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// P71.创建轴映射链接
+	// P71.プレイヤー操作バインド：前後移動。
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ARPG_projectCharacter::MoveForward);
-	// P72.创建轴映射链接
+	// P72.プレイヤー操作バインド：カメラ移動。
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ARPG_projectCharacter::Turn);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ARPG_projectCharacter::LookUp);
-	// P73.创建轴映射链接
+	// P73.プレイヤー操作バインド：左右移動。
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ARPG_projectCharacter::MoveRight);
 
-	// P80.创建操作映射链接，跳跃
+	// P80.プレイヤー操作バインド：ジャンプ。
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
-	// P96.创建操作映射链接，交互
+	// P96.プレイヤー操作バインド：装備。
 	PlayerInputComponent->BindAction(TEXT("Equip"), IE_Pressed, this, &ARPG_projectCharacter::EKeyPressed);
-	// P103.创建操作映射链接，攻击
+	// P103.プレイヤー操作バインド：攻撃。
 	PlayerInputComponent->BindAction(TEXT("Attack"), IE_Pressed, this, &ARPG_projectCharacter::Attack);
-	// P211.Bind Dodge action to input
+	// P211.プレイヤー操作バインド：回避。
 	PlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &ARPG_projectCharacter::Dodge);
-	// Bind "ESC" action input to pausing the game
+	// プレイヤー操作バインド：ゲーム内オプション画面呼び出し。
 	PlayerInputComponent->BindAction(TEXT("InGamePause"), IE_Pressed, this, &ARPG_projectCharacter::ESCKeyPressed);
 	
 }
@@ -116,11 +120,13 @@ void ARPG_projectCharacter::Jump()
 void ARPG_projectCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
-	// P201.if don't check Is Alive, Action state will be covered by Hit Reaction after setting to Dead In Super Fuction
+	// P201.キャラが生きているからどうかを判断しないと、"Dead"に設定されたActionStateが"HitReaction"に再び変更される。
 	if (IsAlive())
 	{
-		// P188.为了修复角色在攻击的同时受到攻击时产生不能进行攻击动作，在受到攻击的时候角色状态设置为“受到攻击”
+		// P188.Bug：キャラが攻撃する瞬間に攻撃されると、永遠に攻撃出来ない。
+		// Debug：攻撃された時に、キャラの状態を"HitReaction"に設定する。
 		ActionState = EActionState::EAS_HitReaction;
+		
 	}
 
 }
@@ -156,7 +162,7 @@ void ARPG_projectCharacter::AddGold(ATreasure* Treasure)
 	}
 }
 
- // Called when the game starts or when spawned
+// Called when the game starts or when spawned
 void ARPG_projectCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -173,12 +179,12 @@ void ARPG_projectCharacter::MoveForward(float Value)
 	if (ActionState != EActionState::EAS_Unoccupied) return;
 	if (Controller && (Value != 0.f))
 	{
-		// P74.判断镜头旋转后的前方
+		// P74.カメラ移動後、キャラが移動すべき前方の方向を計算する。
 		const FRotator ControlRotation = GetControlRotation();
 		const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-		// P74.以旋转矩阵，得到旋转后的X坐标
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+		
 	}
 
 }
@@ -200,12 +206,12 @@ void ARPG_projectCharacter::MoveRight(float Value)
 	if (ActionState != EActionState::EAS_Unoccupied) return;
 	if (Controller && (Value != 0.f))
 	{
-		// P74.判断镜头旋转后的右方
+		// P74.カメラ移動後、キャラが移動すべき右の方向を計算する。
 		const FRotator ControlRotation = GetControlRotation();
 		const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-		// P74.以旋转矩阵，得到旋转后的Y坐标
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
+		
 	}
 
 }
@@ -215,15 +221,16 @@ void ARPG_projectCharacter::EKeyPressed()
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon) 
 	{
-		// P221.Destroy old weapon when equipping new weapon
+		// P221.新しい武器を装備する時、元の武器を破壊（キャンセル）する。
 		if (EquippedWeapon)
 		{
 			EquippedWeapon->Destroy();
+			
 		}
 		EquipWeapon(OverlappingWeapon);
 
 	}
-	// P110.判断是否播放装备动画蒙太奇
+	// P110.装備動画をプレイしているかどうかを判断する。
 	else
 	{
 		if (CanDisarm())
@@ -236,6 +243,7 @@ void ARPG_projectCharacter::EKeyPressed()
 			Arm();
 
 		}
+		
 	}
 
 }
@@ -243,12 +251,12 @@ void ARPG_projectCharacter::EKeyPressed()
 void ARPG_projectCharacter::Attack()
 {
 	Super::Attack();
-	// P105.判断是否播放攻击动画: 角色没有在播放的动画 且 角色已装备武器
-	
+	// P105.キャラが攻撃可能な状態にいるからどうかを判断する。
 	if (CanAttack())
 	{
 		PlayAttackMontage();
 		ActionState = EActionState::EAS_Attacking;
+		
 	}
 
 }
@@ -268,6 +276,7 @@ void ARPG_projectCharacter::Dodge()
 	{
 		Attributes->UseStamina(Attributes->GetDodgeCost());
 		RPG_projectOverlay->SetStaminaProgressBarPercent(Attributes->GetStaminaPercent());
+		
 	}
 	
 }
@@ -277,10 +286,12 @@ void ARPG_projectCharacter::ESCKeyPressed()
 	if (RPG_projectHUD->GetHUDState() == EHUDState::EHS_InGaming)
 	{
 		RPG_projectHUD->ShowInGamePauseUI();
+		
 	}
 	else if (RPG_projectHUD->GetHUDState() == EHUDState::EHS_IGamePause)
 	{
 		RPG_projectHUD->CloseInGamePauseUI();
+		
 	}
 	
 }
@@ -289,9 +300,9 @@ void ARPG_projectCharacter::ESCKeyPressed()
 {
 	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
 	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-	// P110.定义装备中的武器
+	// P110.キャラが装備している武器を記録。
 	EquippedWeapon = Weapon;
-	// P110.来自评论区的代码: 下面的赋值是为什么？
+	// P110.Debug: From comment. 
 	OverlappingItem = nullptr;
 
 }
@@ -304,17 +315,30 @@ void ARPG_projectCharacter::ActionEnd()
 
 bool ARPG_projectCharacter::CanAttack()
 {
-	return (ActionState == EActionState::EAS_Unoccupied && CharacterState != ECharacterState::ECS_Unequipped);
+	return (ActionState == EActionState::EAS_Unoccupied
+		&& CharacterState != ECharacterState::ECS_Unequipped);
+}
+
+void ARPG_projectCharacter::Die_Implementation()
+{
+	Super::Die_Implementation();
+	ActionState = EActionState::EAS_Dead;
+	RPG_projectHUD->ShowGameOverUI();
+	
 }
 
 bool ARPG_projectCharacter::CanDisarm()
 {
-	return (ActionState == EActionState::EAS_Unoccupied && CharacterState != ECharacterState::ECS_Unequipped);
+	return (ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_Unequipped);
 }
 
 bool ARPG_projectCharacter::CanArm()
 {
-	return (ActionState == EActionState::EAS_Unoccupied && CharacterState == ECharacterState::ECS_Unequipped && EquippedWeapon);
+	return (ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState == ECharacterState::ECS_Unequipped &&
+		EquippedWeapon);
+	
 }
 
 void ARPG_projectCharacter::DisArm()
@@ -340,21 +364,15 @@ void ARPG_projectCharacter::PlayEquipMontage(const FName& SectionName)
 	{
 		AnimInstance->Montage_Play(EquipMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
+		
 	}
-	
-}
-
-void ARPG_projectCharacter::Die_Implementation()
-{
-	Super::Die_Implementation();
-	ActionState = EActionState::EAS_Dead;
-	RPG_projectHUD->ShowGameOverUI();
 	
 }
 
 bool ARPG_projectCharacter::HasEnoughStamina()
 {
 	return Attributes && Attributes->GetStamina() > Attributes->GetDodgeCost();
+	
 }
 
 void ARPG_projectCharacter::AttachWeaponToBack()
@@ -377,15 +395,10 @@ void ARPG_projectCharacter::AttachWeaponToHand()
 
 }
 
-void ARPG_projectCharacter::HitReactEnd()
-{
-	ActionState = EActionState::EAS_Unoccupied;
-
-}
-
 bool ARPG_projectCharacter::IsUnoccupied()
 {
 	return CharacterState == ECharacterState::ECS_Unequipped;
+	
 }
 
 void ARPG_projectCharacter::InitializeRPG_projectOverlay()
@@ -410,6 +423,7 @@ void ARPG_projectCharacter::InitializeRPG_projectOverlay()
 		}
 		
 	}
+	
 }
 
 void ARPG_projectCharacter::SetHUDHealth()
@@ -419,4 +433,5 @@ void ARPG_projectCharacter::SetHUDHealth()
 		RPG_projectOverlay->SetHealthProgressBarPercent(Attributes->GetHealthPercent());
 		
 	}
+	
 }

@@ -1,14 +1,14 @@
 #pragma once
 
 /*
-* 强类型枚举头文件
+* Strongly Typed Enum Header File.
 */
 
 /*
-* UENUM: 反射给蓝图的宏
+* UENUM: Blueprintに反映するマクロ。
 */
 
-// P97.Identifying if RPG_projectCharacter equipped weapon
+// P97.RPG_projectCharacterの武器装備状態の判断用。
 UENUM(BlueprintType)
 enum class ECharacterState : uint8
 {
@@ -18,56 +18,57 @@ enum class ECharacterState : uint8
 
 };
 
-// P104.Identifying what kind of action is RPG_projectCharacter doing
+// P104.RPG_projectCharacterが取っている行動の判断用。
 UENUM(BlueprintType)
 enum class EActionState : uint8
 {
-	// P97.Character is in idling state
+	// P97.プレイヤー：何もしていない状態。
 	EAS_Unoccupied UMETA(DisplayName = "Unoccupied"),
-	// P200.RPG_Character is in Death state
+	// P200.プレイヤー：死亡状態。
 	EAS_Dead UMETA(DisplayName = "Dead"),
-	// P188.Character is in Getting hit state
+	// P188.プレイヤー：攻撃を受けて、被ダメージ動画をプレイしている状態。
 	EAS_HitReaction UMETA(DisplayName = "HitReaction"),
-	// P211.Character is in Dodging state
+	// P211.プレイヤー：回避アクションの状態。
 	EAS_Dodge UMETA(DisplayName = "Dodge"),
-	// P97.Character is in attacking state
+	// P97.プレイヤー：攻撃アクションの状態。
 	EAS_Attacking UMETA(DisplayName = "Attacking"),
-	// P97.Character is in equipping weapon state
+	// P97.プレイヤー：武器装備アクションの状態。
 	EAS_EquippingWeapon UMETA(DisplayName = "_EquippingWeapon")
 
 };
 
-// P159.声明判断角色死亡与否和死亡时播放的动画的强类型枚举，枚举成员类型规定为 unsigned int 8
+// P159.キャラが死んだあとプレイされる死亡動画（エディタで代入）の判断用。
 UENUM(BlueprintType)
 enum EDeathPose
 {
-	// P159.角色死了，播放哪种动画
+	// P159.プレイされる死亡動画。
 	EDP_Death1 UMETA(DisplayName = "Death1"),
 	EDP_Death2 UMETA(DisplayName = "Death2"),
 	EDP_Death3 UMETA(DisplayName = "Death3"),
 	EDP_Death4 UMETA(DisplayName = "Death4"),
 	EDP_Death5 UMETA(DisplayName = "Death5"),
 
-	// P180.此枚举类型的成员数量
+	// P180.本列挙型内のメンバー数。
 	EDP_MAX UMETA(DisplayName = "DefaultMax")
 
 };
 
-// P169.声明判断敌人行动模式的强类型枚举，枚举成员类型规定为 unsigned int 8。P180.因为日志的warning而进行了类型的更改：由强枚举修改为普通枚举
+// P169.敵が取っている行動の判断用。
+// P180.LogのWarningより、Strongly Typed EnumからEnumに修正。
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-	// P181.敌人不处于任何状态
+	// P181.敵：何もしていない状態。
 	EES_NoState UMETA(DisplayName = "NoState"),
-	// P179.敌人处于死亡状态
+	// P179.敵：死亡状態。
 	EES_Dead UMETA(DisplayName = "Dead"),
-	// P169.敌人处于巡逻状态
+	// P169.敵：パトロール状態。
 	EES_Patrolling UMETA(DisplayName = "Patrolling"),
-	// P169.敌人处于追逐状态
+	// P169.敵：プレイヤーを追いかけ状態。
 	EES_Chasing UMETA(DisplayName = "Chasing"),
-	// P169.敌人处于攻击状态
+	// P169.敵：戦闘状態。
 	EES_Attacking UMETA(DisplayName = "Attacking"),
-	// P179.敌人处于占用状态
+	// P179.敵：なんかの行動をしている状態。
 	EES_Engaged UMETA(DisplayName = "Engaged")
 
 };

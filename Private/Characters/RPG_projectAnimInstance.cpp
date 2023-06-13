@@ -10,11 +10,12 @@ void URPG_projectAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	// 79.在虚幻5中，Cast<> 等同于 dynamic_cast<>，转换 TryGetPawnOwner() 的返回值类型为 ARPG_projectCharacter
+	// 79.UE5の中、Cast<>はdynamic_cast<>に当てはまる。TryGetPawnOwner()のreturnはARPG_projectCharacterになる。
 	RPG_projectCharacter = Cast<ARPG_projectCharacter>(TryGetPawnOwner());
 	if (RPG_projectCharacter)
 	{
 		RPG_projectCharacterMovement = RPG_projectCharacter->GetCharacterMovement();
+		
 	}
 	
 }
@@ -25,18 +26,17 @@ void URPG_projectAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	if (RPG_projectCharacterMovement)
 	{
-		// P79.调用UKismetMathLibrary库中的函数，返回角色移动向量的 X & Y 轴的值
+		// P79.キャラのX、Y軸のベクトルの長さをreturnする、キャラが移動しているかどうかを判断出来る。
 		GroundSpeed = UKismetMathLibrary::VSizeXY(RPG_projectCharacterMovement->Velocity);
-
-		// P81.逐帧检查角色是否处在下落状态，以更新动画
+		// P81.フレームごとにキャラが落下状態にいるからどうかを判断する。
 		IsFalling = RPG_projectCharacterMovement->IsFalling();
-
-		// P97.逐帧检查角色的武器装备情况，以更新动画
+		// P97.フレームごとにキャラの武器装備状況を判断する。
 		CharacterState = RPG_projectCharacter->GetCharacterState();
 		// P201.Check action state of RPG_projectCharacter every frame
 		ActionState = RPG_projectCharacter->GetActionState();
 		// P201.Check DeathPose of RPG_projectCharacter every frame
 		DeathPose = RPG_projectCharacter->GetDeathPose();
+		
 	}
 
 }

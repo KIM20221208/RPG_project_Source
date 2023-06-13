@@ -9,34 +9,38 @@
 class UButton;
 
 /**
- * Widget generated After "F10" key pressed in game mode
+ * ゲーム中"F10"を押した後に表示されるオプションUI。
  */
+
 UCLASS()
 class RPG_PROJECT_API UInGamePauseUI : public UMyUserWidget
 {
 	GENERATED_BODY()
 
+	
 public:
+	// オプションUIからゲームに戻る。
 	UFUNCTION()
 	virtual void OnResumeButtonClick();
+
 	
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
-	
 	
 	UFUNCTION()
 	void OnOptionButtonClick();
 	
 	UFUNCTION()
 	void OnBackToMainMenuButtonClick();
-	
+
+	// ゲームを終了する。
 	UFUNCTION()
 	void OnQuitButtonClick();
 
 	
 private:
-	// Button widget: Restart game after user click
+	// Button widget: ゲームリスタートボタン。
 	UPROPERTY(meta = (BindWidget))
 	UButton* ResumeButton;
 	
@@ -49,6 +53,7 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* BackToMainMenuButton;
 
+	// Button widget: ゲーム終了ボタン。
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitButton;
 	
