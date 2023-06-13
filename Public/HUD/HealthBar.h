@@ -9,16 +9,17 @@
 class UProgressBar;
 
 /**
- * HUD class for showing Enemy-class health bar
+ * 敵の体力を表示するHUDクラス、エディタのwidget blueprintとbind用。
  */
+
 UCLASS()
 class RPG_PROJECT_API UHealthBar : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	// P153.declare UProgressBar type pointer member param，
-	// insure the name of C++ member param and blueprint widget got same name, equal to call back a value from blueprint
+	// P153.UProgressBar typeのポインターを宣言する。
+	// C++でのメンバー変数とwidget blueprintでのcomponentと同じ名前でネーミングする必要がある。或はbind出来ない。
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthBar;
 	

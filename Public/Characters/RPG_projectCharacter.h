@@ -8,7 +8,10 @@
 #include "Interfaces/PickupInterface.h"
 #include "RPG_projectCharacter.generated.h"
 
-// P72.前向声明
+/**
+* プレイヤー操作キャラクラス。
+*/
+
 class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
@@ -19,14 +22,12 @@ class ASoul;
 class ATreasure;
 class ARPG_projectHUD;
 
-/**
-* Player control character class
-*/
 UCLASS()
 class RPG_PROJECT_API ARPG_projectCharacter : public AMyCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
+	
 public:
 	// Sets default values for this character's properties
 	ARPG_projectCharacter();
@@ -37,19 +38,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// P194.Will be called by AWeapon::OnBoxOverlap function
+	// P194.キャラがダメージを受ける、AWeapon::OnBoxOverlapメソッドからcallされる。
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	/** </AActor> */
 
 	
 	/** <ACharacter> */
-	// P199.
+	// P199
 	virtual void Jump() override;
 	/** </ACharacter> */
 
 	
 	/** <IHitInterface> */
-	// P183.覆盖继承自 IHitInterface 的纯虚函数
+	// P183.IHitInterfaceから継承された純粋仮想関数をoverride、キャラが攻撃された時callされる。
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </IHitInterface> *
 	
@@ -57,17 +58,17 @@ public:
 	/**
 	* Getter & Setter
 	*/
-	// P97.强制内联函数，返回 private 成员中的 CharacterState 变量
+	// P97.Getter: キャラの武器装備状況をreturn。
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
-	// P201.
+	// P201.Getter: キャラが取っているモーション状況をreturn。
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 
 	/** <IPickupInterface> */
-	// P206.Setter: Set Item to OverlappingItem
+	// P206.Setter: Set Item to OverlappingItem.
 	virtual void SetOverlappingItem(AItem* Item) override;
-	// P206.Setter: Set amount of souls in attributes
+	// P206.Setter: Set amount of souls in attributes.
 	virtual void AddSoul(ASoul* Soul) override;
-	// P208.Setter: Set amount of Golds in attributes
+	// P208.Setter: Set amount of Golds in attributes.
 	virtual void AddGold(ATreasure* Treasure) override;
 	/** </IPickupInterface> */
 	
@@ -82,65 +83,72 @@ protected:
 	/**
 	* Callback for input
 	*/
-	// P71.声明前后移动组件函数
+	// P71.プレイヤー操作：前後移動。
 	void MoveForward(float Value);
-	// P72.声明视角组件函数
+	// P72.プレイヤー操作：カメラ移動。
 	void Turn(float Value);
 	void LookUp(float Value);
-	// P72.声明左右移动组件函数
+	// P72.プレイヤー操作：左右移動。
 	void MoveRight(float Value);
-	// P96.声明装备组件函数
+	// P96.プレイヤー操作：装備。
 	void EKeyPressed();
-	// P103.声明成员函数: 攻击。P175.覆盖 MyCharacter 中的虚函数
+	// P103.プレイヤー操作バインド：攻撃。
+	// P175.MyCharacterの仮想関数をoverride。
 	virtual void Attack() override;
 	// P212.return true if action state is occupied
 	bool IsActionOccupied();
-	// P211.Declare input
+	// P211.プレイヤー操作バインド：回避。
 	void Dodge();
 	// Change view port to "InGamePause" UI
 	void ESCKeyPressed();
 
+	
 	/** 
 	* Combat
 	*/
-	// P182.装备武器
+	// P182.武器を装備する。
 	void EquipWeapon(AWeapon* Weapon);
-	// P105.把 ActionState 赋值为 Unoccupied ，可以与动画蒙太奇中的通知一起调用来防止角色在播放动画时平移在角色的ABP事件图标中调用。原 AttackEnd() 成员函数。P175.覆盖 MyCharacter 中的虚函数
+	
+	/** <AMyCharacter> */
+	// P105.ActionStateを"Unoccupied"に割り当てる。
+	// エディタのキャラがABPからcallされる。キャラが同時に複数のコマンドを受けた時、前のコマンドを最後まで実行する事を保証する。
+	// 元AttackEnd()メソッド。
 	virtual void ActionEnd() override;
-	// P105.判断是否在播放攻击动作。P175.覆盖 MyCharacter 中的虚函数
+	// P105.キャラが攻撃可能かどうか（別の動きをしていない、かつ武器を装備している）を判断する。
+	// Can: true, Can't: false.
 	virtual bool CanAttack() override;
-	// P110.判断是否可以解除武器
-	bool CanDisarm();
-	// P110.判断是否可以装备武器
-	bool CanArm();
-	// P182.播放卸下装备动画 动画蒙太奇，并设置角色的相应状态
-	void DisArm();
-	// P182.播放装备动画 动画蒙太奇，并设置角色的相应状态
-	void Arm();
-	// P110.选择播放 EquipMontage 中的段落
-	void PlayEquipMontage(const FName& SectionName);
-	// P200.override Die function derived from AMyCharacter
+	// P200.override Die function, play GameOver UI after dead.
 	virtual void Die_Implementation() override;
-	// P212.return true if has stamina
+	/** </AMyCharacter> */
+	
+	// P110.武器を装備解除できるかどうか（別の動きをしていない、かつ武器を装備している）を判断する。
+	// Can: true, Can't: false.
+	bool CanDisarm();
+	// P110.武器を装備できるかどうか（別の動きをしていない、かつ武器を装備していない、かつ身に収納している武器がある）を判断する。
+	// Can: true, Can't: false.
+	bool CanArm();
+	// P182.武器の装備解除動画をプレイ、かつキャラの状態を"Unequipped"にする。
+	void DisArm();
+	// P182.武器の装備動画をプレイ、かつキャラの状態を"EquippedOneHandedWeapon"にする。
+	void Arm();
+	// P110.EquipMontageの中、プレイすべき動画を選択する。
+	void PlayEquipMontage(const FName& SectionName);
+	// P212.return true if has stamina.
 	bool HasEnoughStamina();
 	
-	// P112.把武器从右手的插口依附到后背的插口，在蓝图调用
+	// P112.武器を右手のSocketから背中のSocketに移動する、エディタでcallされる。
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponToBack();
 
-	// P112.把武器从后背的插口依附到右手的插口，在蓝图调用
+	// P112.武器を背中のSocketから右手のSocketに移動する、エディタでcallされる。
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponToHand();
-
-	// P188.在播放完受到攻击的动画蒙太奇后把角色状态设置为 “Unoccupied”
-	UFUNCTION(BlueprintCallable)
-	void HitReactEnd();
 
 
 private:
 	// P199.Return true if RPG_projectCharacter state is Unoccupied
 	bool IsUnoccupied();
-	// P198. initialize attributes for RPG_projectCharacter
+	// P198.initialize attributes for RPG_projectCharacter
 	void InitializeRPG_projectOverlay();
 	// P199.Refresh Health bar when get hit
 	void SetHUDHealth();
@@ -149,36 +157,36 @@ private:
 	/**
 	* Character Components
 	*/
-	// P72.声明弹簧组件指针
+	// P72.キャラのカメラ用SpringArm。
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
 
-	// P72.声明相机组件指针
+	// P72.キャラのカメラ。
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera;
 
-	// P75.声明Groom组件指针，头发
+	// P75.キャラの髪の毛、エディタから代入。
 	UPROPERTY(VisibleAnywhere, Category = Hair)
 	UGroomComponent* Hair;
 
-	// P75.声明Groom组件指针，眉毛
+	// P75.キャラの眉毛、エディタから代入。
 	UPROPERTY(VisibleAnywhere, Category = Hair)
 	UGroomComponent* Eyebrows;
 
-	// P96.声明AItem类指针变量，检测与AItem类派生物体的碰撞
+	// P96.キャラがoverlappingしているアイテムと。
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
 
-	// P97.声明判断是否装备武器的强类型枚举成员变量
+	// P97.キャラの武の装備状態確認用。
 	UPROPERTY(VisibleAnywhere)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
-	//P104.声明判断人物是否在播放动画
+	//P104.キャラが取っている行動確認用。
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 
-	// P110.声明动画蒙太奇成员变量: 装备
+	// P110.キャラの武器装備動画、エディタから代入。
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
 
@@ -186,7 +194,7 @@ private:
 	UPROPERTY()
 	URPG_projectOverlay* RPG_projectOverlay;
 
-	//
+	// キャラのHUD、エディタのGame Modeからcallされる。
 	UPROPERTY()
 	ARPG_projectHUD* RPG_projectHUD;
 	

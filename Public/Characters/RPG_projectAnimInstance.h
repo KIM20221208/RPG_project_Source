@@ -12,41 +12,43 @@ class ARPG_projectCharacter;
 class UCharacterMovementComponent;
 
 /**
- * 
+ * プレイヤーが操作しているキャラの動画制御に関するクラス
  */
 UCLASS()
 class RPG_PROJECT_API URPG_projectAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
+
 public:
-	// P79.覆盖声明父类中的“事件蓝图开始播放（Event Blueprint Begin Play）”函数
+	/** <UAnimInstance> */
+	// P79.override“事件蓝图开始播放（Event Blueprint Begin Play）”。
 	virtual void NativeInitializeAnimation() override;
-
-	// P79.覆盖声明父类中的“事件蓝图更新动画（Event Blueprint Update Animation）”函数
+	// P79.override“事件蓝图更新动画（Event Blueprint Update Animation）”。
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
+	/** </UAnimInstance> */
 
-	// P79.声明角色变量指针，并让他只在蓝图中可见
+	// P79.プレイヤーが操作しているキャラ。
 	UPROPERTY(BlueprintReadOnly)
 	ARPG_projectCharacter* RPG_projectCharacter;
 
-	// P79.声明角色移动变量指针，并让他只在蓝图中可见
+	// P79.キャラの移動。
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	UCharacterMovementComponent* RPG_projectCharacterMovement;
 
-	// P79.声明float型变量，用来判断角色的 X & Y 轴的变化
+	// P79.キャラの水平的移動の判断用。
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	float GroundSpeed;
 
-	// P81.声明bool型变量，用来判断角色跳跃
+	// P81.キャラの垂直的移動の判断用。
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool IsFalling;
 
-	// P97.返回逐帧检查的 uint8型的 角色武器装备状态
+	// P97.フレームごとにキャラの武器装備状況、エディタで色んな動画（武器あり、なしのランニングポーズ等）をプレイする時の参考。
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	ECharacterState CharacterState;
 
-	// P201.
+	// P201.フレームごとにキャラが取っている行動、エディタで色んな動画（死亡、攻撃等）をプレイする時の参考。
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	EActionState ActionState;
 	

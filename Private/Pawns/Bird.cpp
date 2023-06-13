@@ -13,32 +13,31 @@ ABird::ABird()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// P61.使用 factory function 创建默认Capsule组件
-	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 
-	// P61.变更Capsule参数
+	/**
+	* Componentの作成及び初期設定
+	*/
+	// P61
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 	Capsule->SetCapsuleHalfHeight(20.f);
 	Capsule->SetCapsuleRadius(15.f);
-
-	// P61.设置为根组件，与 RootComponent = Capsule 相等
 	SetRootComponent(Capsule);
-
-	// P63.使用 factory function 创建默认骨骼网格体组件
+	
+	// P63
 	BirdMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BirdMesh"));
-	// P63.把 BirdMesh 添加到根组件
 	BirdMesh->SetupAttachment(GetRootComponent());
-
-	// P66.使用 factory function 创建默认弹簧组件，并添加到Capsule组件下
+	
+	// P66
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(Capsule);
-	// P66.设定弹簧组件臂长
 	CameraBoom->TargetArmLength = 300.f;
-
-	// P66.使用 factory function 创建默认相机组件
+	
+	// P66
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
 
-	// P64.设定自动控制玩家
+	
+	// P64.キャラを操作するプレイヤーを設定
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 }
@@ -54,12 +53,13 @@ void ABird::MoveForward(float Value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Value: %f"), Value);
 
-	// P65.添加移动输入: 只有被设定为poccess 且 当按了相应按键时
+	// P65.キャラがプレイヤーに操作かつ前後移動のコマンドが入力された時
 	if (Controller && (Value != 0.f))
 	{
 		FVector Forward = GetActorForwardVector();
 		AddMovementInput(Forward, Value);
 	}
+	
 }
 
 void ABird::Turn(float Value)
@@ -88,12 +88,10 @@ void ABird::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// P64.绑定按键: 前后
+	// P64.プレイヤー操作バインド：前後移動
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ABird::MoveForward);
-	// P67.绑定按键: 视角转动
-	// 注意在UE5中的details pannel中设置 “使用控制器旋转XX”
+	// P67.プレイヤー操作バインド：カメラ移動
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ABird::Turn);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ABird::LookUp);
 
 }
-

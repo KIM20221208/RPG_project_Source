@@ -10,6 +10,9 @@ void UInGamePauseUI::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
+	/**
+	 * ボタンのbind。
+	 */
 	ResumeButton->OnClicked.AddDynamic(this, &UInGamePauseUI::OnResumeButtonClick);
 	RestartButton->OnClicked.AddDynamic(this, &UInGamePauseUI::OnRestartButtonClick);
 	OptionButton->OnClicked.AddDynamic(this, &UInGamePauseUI::OnOptionButtonClick);
@@ -26,26 +29,31 @@ void UInGamePauseUI::OnResumeButtonClick()
 		APlayerController* PlayerController = World->GetFirstPlayerController();
 		if (PlayerController)
 		{
-			// set input mode from "gameOnly" to "UIOnly"
+			// Input modeを"gameOnly"から"UIOnly"に変更する。
 			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerController);
-			// Remove widget from it's parent, also be removed if bounded with screen 
+			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
 			UUserWidget::RemoveFromParent();
-			// set back input mode to "game"
+			// Input modeを"game"に戻す。
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 			UGameplayStatics::SetGamePaused(World, false);
 			PlayerController->bShowMouseCursor = false;
+			
 		}
+		
 	}
+	
 }
 
 void UInGamePauseUI::OnOptionButtonClick()
 {
 	// TODO: Option Menu
+	
 }
 
 void UInGamePauseUI::OnBackToMainMenuButtonClick()
 {
 	// TODO: Back To Main Menu, && Main Menu
+	
 }
 
 void UInGamePauseUI::OnQuitButtonClick()
@@ -59,5 +67,7 @@ void UInGamePauseUI::OnQuitButtonClick()
 			UKismetSystemLibrary::QuitGame(World, PlayerController, EQuitPreference::Quit, false);
 			
 		}
+		
 	}
+	
 }

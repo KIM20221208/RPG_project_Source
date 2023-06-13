@@ -9,20 +9,22 @@
 class UButton;
 
 /**
- * Widget generated After RPG_projectCharacter dead
+ * プレイヤーが死んだ後に表すUI。
  */
+
 UCLASS()
 class RPG_PROJECT_API UGameOverUI : public UMyUserWidget
 {
 	GENERATED_BODY()
 
+	
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
 	
 	
 private:
-	// Button widget: Restart game after user click
+	// Button widget: プレイヤーがクリックした後、ゲームをリスタートする。
 	UPROPERTY(meta = (BindWidget))
 	UButton* RestartButton;
 	

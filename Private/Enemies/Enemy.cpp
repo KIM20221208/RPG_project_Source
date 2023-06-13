@@ -18,31 +18,33 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	/*
-	* 本类 Mesh 相关初始化
+	
+	/**
+	* 敵クラスのMeshに関する初期設定。
 	*/
-	// P123.定义 Enemy 类的网格体的对象类型为 “WorldDynamic”，用于攻击判定
+	// P123.被ダメージの衝突判定用。
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	// P123.定义 Enemy 类的网格体的对象类型为 “WorldDynamic”，用于攻击判定
+	// P123.被ダメージの衝突判定用。
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-	// P123.定义 Enemy 类的网格体忽略“摄像机”
-	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	// P123.定义Enemy 类的网格体的 “生成重叠时间”为 true
+	// P123.衝突時イベントを生成する。
 	GetMesh()->SetGenerateOverlapEvents(true);
+	// P123.プレイヤーのカメラをIgnoreする。
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	
 
-	/*
-	* 组件相关初始化
+	/**
+	* Componentの作成及び初期設定
 	*/
-	// P152.使用模板函数初始化 本地组件 UWidgetComponent，并添加到根组件
+	// P152.キャラのHealthBar。
 	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>(TEXT("HealthBar"));
 	HealthBarWidget->SetupAttachment(GetRootComponent());
-	// P168.使用模板函数初始化
+	// P168.プレイヤーを探知するSensing。
 	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
 	PawnSensing->SightRadius = 4000.f;
 	PawnSensing->SetPeripheralVisionAngle(45.f);
 
-	// P164.调用角色移动类中的 “将旋转朝向运动”成员函数，使角色朝向前进方向
+	
+	// P164.キャラの向きを前進している方向に向かうようにする。
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -55,17 +57,19 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// P179.如果角色死亡，则不进行任何AI模式
+	// P179.キャラが死んだら、AIモードの判断をしない。
 	if (IsDead()) return;
-	// P169.敌人行为模式为追逐或者攻击时，判断战斗对象是否脱离了仇恨范围，true 则 隐藏血条。强类型枚举具有默认的值，可以进行比较
+	// P169.キャラが攻撃あるいは追いかけ状態にいる時、戦闘相手が自分と離れた範囲がdefaultの値より遠いかを判断する。
+	// true: HealthBarをプレイヤーが見えないように隠す、false: パトロール状態に入る。
 	if (EnemyState > EEnemyState::EES_Patrolling)
 	{
 		CheckCombatTarget();
+		
 	}
-	// P169.false则进入巡逻状态
 	else
 	{
 		CheckPatrolTarget();
+		
 	}
 
 }
@@ -80,18 +84,21 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
-	// P160.一旦被攻击，则设置发动攻击的角色为战斗对象
+	// P160.攻撃された時、攻撃者を戦闘相手に設定する。
 	CombatTarget = EventInstigator->GetPawn();
-	// P191.control the attack timer, after get hit
+	// P191.戦闘時の攻撃間隔。
 	if (IsInsideAttackRadius())
 	{
 		EnemyState = EEnemyState::EES_Attacking;
+		
 	}
 	else if (IsOutsideAttackRadius())
 	{
 		ChaseTarget();
+		
 	}
 	return DamageAmount;
+	
 }
 
 void AEnemy::Destroyed()
@@ -106,27 +113,27 @@ void AEnemy::Destroyed()
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	/*
-	* 在被击中的点上绘制debug 球体
-	* DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange)
-	*/
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
-	// P160.在角色被攻击时显示血条。P188.除非角色没死
+	
+	// P160.キャラのHealthBarを表示する。
+	// P188.キャラが死んでいないなら。
 	if (!IsDead())
 	{
 		ShowHealthBar();
 
 	}
-	// P188.为了防止角色在攻击时同时触发巡逻，被攻击时取消巡逻计时器
+
+	// P188.キャラが攻撃された時、同時にパトロールをtriggerする事を防ぐため、攻撃された時パトロールのタイマーをclearする。
 	ClearPatrolTimer();
-	// P191.Attack Timer will impede Get hit animation, so clear attack timer when get hit 
+	// P191.キャラの攻撃が被ダメージ動画を妨げる為、攻撃された時に攻撃タイマーをclearする。
 	ClearAttackTimer();
 	StopAttackMontage();
 
-	// P218.Check if combat target is still inside attack radius after get hit
+	// P218.攻撃された後、戦闘相手がまだ攻撃範囲内にいるのかを判断する。
 	if (IsInsideAttackRadius() && !IsDead())
 	{
 		StartAttackTimer();
+		
 	}
 	
 }
@@ -136,13 +143,16 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// P168.添加bind关系到 OnseePawn 默认成员函数，使得触发 OnseePawn 时会callback 本类中的 PawnSeen 成员函数
+	// P168.本クラスの"PawnSeen"メソッドをPawnSensing componentの"OnSeePawn"にbindする。
+	// PawnSensingよりプレイヤーを探知出来た時、"PawnSeen"をcallする。
 	if (PawnSensing)
 	{
 		PawnSensing->OnSeePawn.AddDynamic(this, &AEnemy::PawnSeen);
+		
 	}
+	
 	InitializeEnemy();
-	// P183.为了在别的类中进行是否为本类的判断，而加的 Tag
+	// P183.別のクラスで敵かどうかの判断用Tag。
 	Tags.Add(FName("Enemy"));
 
 }
@@ -151,7 +161,7 @@ void AEnemy::Attack()
 {
 	Super::Attack();
 	if (CombatTarget == nullptr) return;
-	// P181.在角色攻击时设定为占用状态
+	// P181.キャラが攻撃時に状態を"Engaged"に設定して、別の動きと衝突されることを防ぐ。
 	EnemyState = EEnemyState::EES_Engaged;
 	PlayAttackMontage();
 	
@@ -172,10 +182,11 @@ void AEnemy::HandleDamage(float DamageAmount)
 {
 	Super::HandleDamage(DamageAmount);
 
-	// P155.调用 UArrtributeComponent 类中的 ReceiveDamage 成员函数更新生命值
+	// P155.UArrtributeComponentクラスのReceiveDamage methodをcallして体力の値を更新する
 	if (Attributes && HealthBarWidget)
 	{
-		// P154.调用 UHealthBarComponent 类中的 SetHealthPercent 成员函数 设置角色血量，调用GetHealthPercent 成员函数 更新角色血量
+		// P154.UHealthBarComponentクラスのSetHealthPercentメソッドでキャラの体力をセットする。
+		// AttributesクラスのGetHealthPercentメソッドでキャラの体力の値を更新する。
 		HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
 
 	}
@@ -191,59 +202,21 @@ void AEnemy::ActionEnd()
 
 void AEnemy::Die_Implementation()
 {
-	/*
-	// P158.播放死亡动画蒙太奇
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && DeathMontage)
-	{
-		AnimInstance->Montage_Play(DeathMontage);
-		// P158.按随机数跳转蒙太奇片段的
-		const int32 Section = FMath::RandRange(0, 4);
-		FName SectionName = FName();
-		switch (Section)
-		{
-		case 0:
-			SectionName = FName("Death1");
-			DeathPose = EDeathPose::EDP_Death1;
-			break;
-		case 1:
-			SectionName = FName("Death2");
-			DeathPose = EDeathPose::EDP_Death2;
-			break;
-		case 2:
-			SectionName = FName("Death3");
-			DeathPose = EDeathPose::EDP_Death3;
-			break;
-		case 3:
-			SectionName = FName("Death4");
-			DeathPose = EDeathPose::EDP_Death4;
-			break;
-		case 4:
-			SectionName = FName("Death5");
-			DeathPose = EDeathPose::EDP_Death5;
-			break;
-		default:
-			break;
-		}
-		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
-	}
-	*/
 	Super::Die_Implementation();
 	
-	// P180.经过整理
+	// P180.整理をした。
 	EnemyState = EEnemyState::EES_Dead;
 	ClearAttackTimer();
 	DisableCapsule();
-	// P160.设置死亡后角色尸体存续时间
+	// P160.キャラが死んだ後、死体の存続時間を設定する。
 	SetLifeSpan(DeathLifeSpan);
-	// P160.角色死亡时隐藏血条
+	// P160.キャラが死んだ後、HealthBarを消す。
 	HideHealthBar();
-	// P180.角色死亡后的尸体旋转问题，角色死亡后不允许方向旋转
+	// P180.Bug: キャラが死んだ後、時々死体が回転する。
+	// Debug: キャラが死んだ後、向きの回転をcloseする。
 	GetCharacterMovement()->bOrientRotationToMovement = false;
-	// P188.为了防止在攻击中死亡时，死亡动作中手中的武器还具有碰撞，角色死亡时取消装备的武器碰撞
-	// SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	SpawnSoul();
+	
 }
 
 void AEnemy::SpawnSoul()
@@ -267,7 +240,7 @@ void AEnemy::SpawnSoul()
 
 void AEnemy::InitializeEnemy()
 {
-	// P165.在此类实例化时得到它的控制器，并设置角色的自动巡逻点
+	// P165.キャラがオブジェクト化する時にControllerをゲット、かつパトロールターゲット（動的配列、エディタで代入）に移動させる。
 	EnemyController = Cast<AAIController>(GetController());
 	MoveToTarget(PatrolTarget);
 	HideHealthBar();
@@ -278,26 +251,13 @@ void AEnemy::InitializeEnemy()
 void AEnemy::MoveToTarget(AActor* Target)
 {
 	if (EnemyController == nullptr || Target == nullptr) return;
-	// P165.通过定义 FAIMoveRequest 结构体来设置目标点
+	// P165.FAIMoveRequest構造体の"SetGoalActor"メソッドでパトロールターゲットを設定する。
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	// P165.Stop in certain radius circle
+	// P165.パトロールターゲットを円の中心として、AcceptanceRadiusを半径とした円まで移動させる。
 	MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
-	/*
-	// P165.由移动路线的 起始&结束点 组成的数组，通过 AIController 类中的 MoveTo 函数返回
-	FNavPathSharedPtr NavPath;
-	*/
+	// P165.パトロールターゲットに移動させる。
 	EnemyController->MoveTo(MoveRequest);
-	/*
-	TArray<FNavPathPoint>& PathPoint = NavPath->GetPathPoints();
-	// P165.在角色行动路线上画出 DebugSphere
-	for (auto& Point : PathPoint)
-	{
-		const FVector& Location = Point.Location;
-		DRAW_SPHERE(Location);
-
-	}
-	*/
 
 }
 
@@ -306,7 +266,7 @@ void AEnemy::CheckPatrolTarget()
 	if (InTargetRange(PatrolTarget, CombatRadius))
 	{
 		PatrolTarget = ChoosePatrolTarget();
-		// P167.调用 FTimerManager 结构体中的 SetTimer 来设置巡逻之间的 Idle 时长，为 5~10秒
+		// P167.FTimerManager構造体のSetTimerメソッドでパトロールターゲットにたどり着いた後Idleの長さを設定する：5~10秒。
 		float WaitTime = FMath::RandRange(PatrolWaitMin, PatrolWaitMax);
 		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerFinished, WaitTime);
 
@@ -372,7 +332,7 @@ void AEnemy::ShowHealthBar()
 
 void AEnemy::LoseInterest()
 {
-	// P160.相对距离大于 CombatRadius 则对原战斗对象失去仇恨
+	// P160.プレイヤーとの相対的距離がCombatRadiusより遠いければ、興味を失う。
 	CombatTarget = nullptr;
 	HideHealthBar();
 
@@ -380,7 +340,7 @@ void AEnemy::LoseInterest()
 
 void AEnemy::StartPatrolling()
 {
-	// P170.返回巡逻状态，并且恢复移动速度，开始向巡逻节点移动
+	// P170.パトロール状態に戻る。移動スピードが元に戻り、本来のパトロールターゲットに移動する。
 	EnemyState = EEnemyState::EES_Patrolling;
 	GetCharacterMovement()->MaxWalkSpeed = PatrollingSpeed;
 	MoveToTarget(PatrolTarget);
@@ -389,7 +349,7 @@ void AEnemy::StartPatrolling()
 
 void AEnemy::ChaseTarget()
 {
-	// P171.相对距离大于 AttackRadius 小于 CombatRadius 则切换原先的战斗模式到追逐模式
+	// P171.プレイヤーとの相対的距離がAttackRadiusより大きい、かつcombatRadiusより小さい時、追いかけ状態に入る。
 	EnemyState = EEnemyState::EES_Chasing;
 	GetCharacterMovement()->MaxWalkSpeed = ChasingSpeed;
 	MoveToTarget(CombatTarget);
@@ -399,51 +359,57 @@ void AEnemy::ChaseTarget()
 bool AEnemy::IsOutsideCombatRadius()
 {
 	return !InTargetRange(CombatTarget, CombatRadius);
+	
 }
 
 bool AEnemy::IsOutsideAttackRadius()
 {
 	return !InTargetRange(CombatTarget, AttackRadius);
+	
 }
 
 bool AEnemy::IsInsideAttackRadius()
 {
 	return InTargetRange(CombatTarget, AttackRadius);
+	
 }
 
 bool AEnemy::IsChasing()
 {
 	return EnemyState == EEnemyState::EES_Chasing;
+	
 }
 
 bool AEnemy::IsAttacking()
 {
 	return EnemyState == EEnemyState::EES_Attacking;
+	
 }
 
 bool AEnemy::IsDead()
 {
 	return EnemyState == EEnemyState::EES_Dead;
+	
 }
 
 bool AEnemy::IsEngaged()
 {
 	return EnemyState == EEnemyState::EES_Engaged;
+	
 }
 
 void AEnemy::ClearPatrolTimer()
 {
-	// P169.关闭巡逻时的Idle计时器
 	GetWorldTimerManager().ClearTimer(PatrolTimer);
 
 }
 
 void AEnemy::StartAttackTimer()
 {
-	// P171.相对距离小于 AttackRadius 进入战斗模式
+	// P171.キャラの行動パタンを"Attacking"に設定する。
 	EnemyState = EEnemyState::EES_Attacking;
 	const float AttackTime = FMath::RandRange(AttackMin, AttackMax);
-	// P179.经过 AttackTime 秒 后 call 本类中的 Attack 成员函数
+	// P179.AttackTime秒後、本クラスのAttackメソッドをcallする。
 	GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
 
 }
@@ -451,11 +417,12 @@ void AEnemy::StartAttackTimer()
 void AEnemy::ClearAttackTimer()
 {
 	GetWorldTimerManager().ClearTimer(AttackTimer);
+	
 }
 
 AActor* AEnemy::ChoosePatrolTarget()
 {
-	// P166.做一个不包含已经达到的巡逻节点的新数组，防止随机到同一个巡逻节点
+	// P166.元のパトロールタイマーを含んでいないパトロールターゲット配列を作る。
 	TArray<AActor*> ValidTargets;
 	for (AActor* Target : PatrolTargets)
 	{
@@ -471,18 +438,8 @@ AActor* AEnemy::ChoosePatrolTarget()
 	if (NumPatrolTargets > 0 && EnemyController)
 	{
 		const int32 TargetSelection = FMath::RandRange(0, NumPatrolTargets - 1);
-		/*
-		* AActor* Target = PatrolTargets[TargetSelection];
-		* PatrolTarget = Target;
-		// P165.在此类实例化时得到它的控制器，并设置角色的自动巡逻点
-		// P165.通过定义 FAIMoveRequest 结构体来设置目标点
-		FAIMoveRequest MoveRequest;
-		MoveRequest.SetGoalActor(PatrolTarget);
-		// P165.阻止角色移动的圆
-		MoveRequest.SetAcceptanceRadius(15.f);
-		EnemyController->MoveTo(MoveRequest);
-		*/
 		return PatrolTargets[TargetSelection];
+		
 	}
 	return nullptr;
 
@@ -491,29 +448,24 @@ AActor* AEnemy::ChoosePatrolTarget()
 bool AEnemy::InTargetRange(AActor* Target, double Radius)
 {
 	if (Target == nullptr) return false;
-	// P160.计算角色和 某个Actor类 的距离
+	// P160.キャラとActorクラス間の距離を計算する。
 	const double DistanceToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
-	/*
-	// P166.按照判断半径的 Radius 画出 debug sphere
-	DRAW_SPHERE_SINGLEFRAME(Target->GetActorLocation());
-	// P166.在角色的位置上画出 debug sphere
-	DRAW_SPHERE_SINGLEFRAME(GetActorLocation());
-	*/
 	return DistanceToTarget <= Radius;
 
 }
 
 void AEnemy::SpawnDefaultWeapon()
 {
-	// P177.由蓝图中赋值的武器派生类，依附到角色的“右手插口”
+	// P177.エディタのBlueprintから武器を代入する。
 	UWorld* World = GetWorld();
 	if (World && WeaponClass)
 	{
-		// P177.在世界中生成武器实例
+		// P177.Worldに武器をオブジェクト化して生成する。
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
-		// P177.调用父类 AMyCharacter 的成员函数，依附到角色的“武器插口” P216.modify "Right hand socket" to "Weapon socket"
+		// P177.AWeaponクラスの"Equip"メソッドをcallして武器をキャラのsocketに装備する。
+		// P216.元の"Right hand socket"を"Weapon socket"に修正。
 		DefaultWeapon->Equip(GetMesh(), FName("WeaponSocket"), this, this);
-		// P177.对成员变量进行赋值
+		// P177.キャラが装備している武器を記録する。
 		EquippedWeapon = DefaultWeapon;
 
 	}
@@ -521,7 +473,7 @@ void AEnemy::SpawnDefaultWeapon()
 
 void AEnemy::PawnSeen(APawn* SeenPawn)
 {
-	// P179.整合在此函数作用域内需要通过的所有判断
+	// P179.キャラが追いかけ可能な状態にいる、かつ探知出来たAPawnクラスのオブジェクトが戦闘すべき相手（"EngageableTarget"Tagを持つ）である。
 	const bool bShouldChaseTarget =
 		EnemyState != EEnemyState::EES_Dead &&
 		EnemyState != EEnemyState::EES_Chasing &&
@@ -530,34 +482,11 @@ void AEnemy::PawnSeen(APawn* SeenPawn)
 
 	if (bShouldChaseTarget)
 	{
-		// P169.切换战斗对象为看到的角色，并进入追逐模式
+		// P169.探知出来たAPawnクラスのオブジェクトを戦闘相手に設定して追いかけ状態にに入る。
 		CombatTarget = SeenPawn;
 		ClearPatrolTimer();
 		ChaseTarget();
 
 	}
-	/*
-	// P169.为了防止逐帧调用此函数（OnSeePawn 大概每5帧调用一次），浪费资源，预先判断角色是否进入了追逐状态
-	if (EnemyState == EEnemyState::EES_Chasing) return;
-	// P169.如果看到的角色拥有某种标签，则切换为追逐模式，
-	if (SeenPawn->ActorHasTag(FName("EngageableTarget")))
-	{
-		ClearPatrolTimer();
-		// P169.角色移动速度变更
-		GetCharacterMovement()->MaxWalkSpeed = 300.f;
-		// P169.切换战斗对象为看到的角色
-		CombatTarget = SeenPawn;
-
-		// P171.如果已经是攻击状态了，那么就不需要切换为追逐状态
-		if (EnemyState != EEnemyState::EES_Attacking)
-		{
-			EnemyState = EEnemyState::EES_Chasing;
-			// P169.开始追逐战斗对象
-			MoveToTarget(CombatTarget);
-
-		}
-
-	}
-	*/
 
 }

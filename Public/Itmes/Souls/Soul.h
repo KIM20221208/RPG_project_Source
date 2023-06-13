@@ -7,26 +7,28 @@
 #include "Soul.generated.h"
 
 class UNiagaraSystem;
+
 /**
- * Soul Actor generated after enemy dead
- */
+* Soul（経験値）のベースクラス。
+*/
+
 UCLASS()
 class RPG_PROJECT_API ASoul : public AItem
 {
 	GENERATED_BODY()
 
+	
 public:
 	/** <AActor> */
 	virtual void Tick(float DeltaTime) override;
 	/** </AActor> */
-
 	
 	/**
 	 * Getter & Setter
 	 */
 	// P208.Getter: Souls
 	FORCEINLINE int32 GetSouls() const { return Souls; }
-	// P209.Setter: Souls, when ASoul is spawning after enemy dead
+	// P209.Setter: Souls, 敵が死んだ後生成される経験値の量。
 	FORCEINLINE void SetSouls(int32 NumberOfSouls) { Souls = NumberOfSouls; }
 
 	
@@ -34,26 +36,23 @@ protected:
 	/** <AActor> */
 	virtual void BeginPlay() override;
 	/** </AActor> */
-
 	
 	/** <AItem> */
-	// P205.related to pickup Soul
+	// P205.Soulsを拾う。
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	/** </AItem> */
 
-
-	// P221.Stop position of soul moving after spawned
+	// P221.Soulsが生成された後、地面までの移動すべき高さ。
 	double DesiredZ;
-	// P221.Stop drifting height from the land, default is 50
+	// P221.Soulsが地面までの停止すべき高さ、default: 100.f。
 	double StopDriftFromLand = 100;
-	// P221.the moving speed after soul spawned, default value is -15.f
+	// P221.Soulsが生成された後、地面までの移動スピード、default value is -15.f、エディタから修正可能。
 	UPROPERTY(EditAnywhere)
 	float DriftRate = -15.f;
-	
 
 	
 private:
-	// P208.Amount of Souls the enemy gonna drop
+	// P208.敵が死んだ後生成されるSoulsの量。
 	UPROPERTY(EditAnywhere, Category = "Soul Properties")
 	int32 Souls;
 	

@@ -14,21 +14,23 @@ void ARPG_projectHUD::ShowGameOverUI()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		// Before add game over UI, remove RPG_projectOverlay
+		// ゲームオーバーUIを開く前、RPG_projectOverlayを先ずcloseする。
 		UWidgetLayoutLibrary::RemoveAllWidgets(World);
-		// Add game over UI into the viewport
+		// ViewportにゲームオーバーUIを開く。
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller && UGameOverClass)
 		{
 			GameOverUI = CreateWidget<UGameOverUI>(Controller, UGameOverClass);
 			GameOverUI->AddToViewport();
-			// Show Mouse cursor after player dead
+			// マウスのコントロールを許可する。
 			Controller->bShowMouseCursor = true;
-			// Change HUD state to "Game Over"
+			// HUD stateを"Game Over"に設定する。
 			HUDState = EHUDState::EHS_GameOver;
 			
 		}
+		
 	}
+	
 }
 
 void ARPG_projectHUD::ShowInGamePauseUI()
@@ -36,20 +38,21 @@ void ARPG_projectHUD::ShowInGamePauseUI()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		// Add game over UI into the viewport
+		// ViewportにオプションUIを開く。
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller && UInGamePauseClass)
 		{
 			InGamePauseUI = CreateWidget<UInGamePauseUI>(Controller, UInGamePauseClass);
 			InGamePauseUI->AddToViewport();
-			// Show Mouse cursor after player dead
+			// マウスのコントロールを許可する。
 			Controller->bShowMouseCursor = true;
-			// Pause the game when in the Pausing Mode
+			// オプションUIの時、ゲームを一時停止する。
 			UGameplayStatics::SetGamePaused(World, true);
-			// Change HUD state to "Game Over"
-			HUDState = EHUDState::EHS_IGamePause;
+			// // HUD stateを"In Game Pause"に設定する。
+			HUDState = EHUDState::EHS_InGamePause;
 			
 		}
+		
 	}
 	
 }
@@ -63,19 +66,21 @@ void ARPG_projectHUD::CloseInGamePauseUI()
 
 void ARPG_projectHUD::ShowRPG_projectOverlay()
 {
-	// P197.
+	// P197
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller && URPG_projectClass)
 		{
-			// P197.Create URPG_projectOverlay via template function
+			// P197.template functionでURPG_projectOverlayを生成する。 
 			RPG_projectOverlay = CreateWidget<URPG_projectOverlay>(Controller, URPG_projectClass);
 			RPG_projectOverlay->AddToViewport();
 			Controller->bShowMouseCursor = false;
 			HUDState = EHUDState::EHS_InGaming;
+			
 		}
+		
 	}
 	
 }

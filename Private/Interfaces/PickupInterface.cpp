@@ -18,3 +18,8 @@ void IPickupInterface::AddGold(ATreasure* Treasure)
 {
 	
 }
+
+void IPickupInterface::AddHealthPoint(APotion* Potion)
+{
+	
+}

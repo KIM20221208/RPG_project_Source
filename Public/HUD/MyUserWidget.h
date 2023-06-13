@@ -13,8 +13,10 @@ UCLASS()
 class RPG_PROJECT_API UMyUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
 	
 protected:
+	// ゲームをリスタートする。
 	UFUNCTION()
 	void OnRestartButtonClick();
 	

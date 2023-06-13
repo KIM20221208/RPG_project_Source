@@ -13,18 +13,19 @@ class UAnimMontage;
 class UAttributeComponent;
 
 /*
-* Parent class of characters，P175.organized from PRPG_projectCharacter class and  Enemy class
+* 各種キャラクラスの親クラス、P175.PRPG_projectCharacterクラスとEnemyクラスから整理して作られている
 */
+
 UCLASS()
 class RPG_PROJECT_API AMyCharacter : public ACharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
+	
 public:
 	// Sets default values for this character's properties
 	AMyCharacter();
-
-
+	
 	/** <AActor> */ 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -32,11 +33,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	/** </AActor> */
 
-
 	/**
 	 * Getter & Setter
 	 */
-	// P201.
+	// P201.Getter: プレイされる死亡動画のserial numberをreturn
 	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return  DeathPose; }
 	
 
@@ -46,121 +46,130 @@ protected:
 	virtual void BeginPlay() override;
 	/** </AActor> */
 
-
 	/** <IHitInterface> */
-	// P187.如果角色活着，则播放被攻击动画蒙太奇，音效，粒子
+	// P187.ダメージを受けた時callされる：キャラが生きているなら、被ダメージ動画、FX、音声等をプレイする
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </IHitInterface> */
 
-
-	// P131.计算发生攻击判定的点相对于Enemy类的位置，播放相应的被攻击动画蒙太奇
+	// P131.キャラが攻撃された時発生した衝突判定の相対的位置（前後左右）より被ダメージ動画をプレイする
 	void DirectionalHitReact(const FVector& ImpactPoint);
-	// P175.声明虚函数: 角色死亡成员函数,并播放死亡动画蒙太奇
-	// P220.Make Die function blueprint Native Event
+	// P175.仮想関数宣言：死亡動画をプレイする、キャラのHPが0になるときにcallされる
+	// P220.仮想関数宣言より修正：Make Die function blueprint Native Event
 	UFUNCTION(BlueprintNativeEvent)
 	void Die();
-	// 175.声明虚函数: 攻击
-	// P202.if combat target is dead, set combat target to nullptr
+	// 175.仮想関数宣言：攻撃
+	// P202.戦闘相手が死んだとき、CombatTargetをnullptrに設定する、死体に対しての攻撃する事を防ぐ
 	virtual void Attack();
-	// P179.被攻击时播放音效
+	// P179.攻撃された時にプレイされる音声
 	void PlayHitSound(const FVector& ImpactPoint);
-	// P179.被攻击时播放粒子效果
+	// P179.攻撃された時にプレイされる粒子FX（血等）
 	void SpawnHitParticles(const FVector& ImpactPoint);
-	// P179.被攻击时扣血
+	// P179.攻撃された時にダメージを受ける
 	virtual void HandleDamage(float DamageAmount);
-	// P180.设置胶囊体组件为“无碰撞”
+	// P180.環境との物理的衝突判定用ボリューム設定を"No Collision"にする
+	// P160.キャラが死ぬときにcallされる
 	void DisableCapsule();
-	// P179.检查角色是否活着
+	// P179.キャラが生きているからどうかを判断する：
+	// Alive: true, Dead: false
 	bool IsAlive();
-	// P175.声明虚函数: 判断是否在播放攻击动作
+	// P175.仮想関数宣言: キャラが攻撃可能かどうかを判断する
+	// Can: true, Can't: false
 	virtual bool CanAttack();
-	// P104.播放由四个方向遭受攻击时的被击中动作组成的动画蒙太奇
+	// P104.SectionNameより被ダメージ動画をプレイする
 	void PlayHitReactMontage(const FName& SectionName);
-	// P175.播放攻击动画蒙太奇
+	// P175.攻撃動画をプレイする
 	virtual int32 PlayAttackMontage();
-	// P180.播放死亡动画蒙太奇
+	// P180.死亡動画をプレイする
 	virtual int32 PlayDeathMontage();
-	// P211.Play DodgeMontage by section name in DodgeMontage
+	// P211.SectionNameより回避動画をプレイする、SectionName is hard coded
 	virtual void PlayDodgeMontage();
-	// P191.Stop attack montage when get hit
+	// P191.攻撃された時、キャラの攻撃動画をストップする
 	void StopAttackMontage();
-	// P201.Set Mesh Collision To No Collision
+	// P201.キャラが死んだ後、モデルの物理的衝突設定を"No Collision"にする、死体がプレイヤーの移動を邪魔する事を防ぐ
 	void DisableMeshCollision();
 
-
-	// P175.声明虚函数: 把 ActionState 赋值为 Unoccupied ，可以与动画蒙太奇中的通知一起调用来防止角色在播放动画时平移在角色的ABP事件图标中调用。原 AttackEnd() 成员函数。
+	// P175.仮想関数宣言：キャラのメンバー変数ActionStateをUnoccupiedに設定する
+	// 色んな行動が終了時、エディタのABP（Animation blueprint）からcallされる
+	// エディタでcallされる
+	// former AttackEnd() method
 	UFUNCTION(BlueprintCallable)
 	virtual void ActionEnd();
 
-	// P121.根据攻击动画蒙太奇返回的通知开放武器的盒体攻击判定，传参由蓝图完成
+	// P121.Attack Animation MontageからreturnされるNotifyから武器の当たり判定ボリュームを開放する
+	// エディタでcallされる
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 	
-	// P160.角色的战斗对象
+	// P160.キャラの戦闘相手
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 	AActor* CombatTarget;
 	
-	// P110.声明识别装备在身上的武器的 AWeapon类指针成员变量
+	// P110.キャラが装備している武器
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 	AWeapon* EquippedWeapon;
 
-	// P151.声明本地变量组件
+	// P151.キャラの属性（体力、スタミナ等）に関するComponent
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
-	// P192.
+	// P192.キャラが攻撃行動をとる時、warpする位置をreturnする
+	// エネミー攻撃がプレイヤーに回避し易い事に対する最適化：エネミーが攻撃時、プレイヤーの隣に強制的移動する
+	// エディタでcallされる
 	UFUNCTION(BlueprintCallable)
 	FVector GetTranslationWarpTarget();
 
-	// P192.let character face to the combat target
+	// P192.キャラが攻撃行動をとる時、warpした後の向きをreturnする
+	// エネミー攻撃がプレイヤーに回避し易い事に対する最適化：warp後、向きを戦闘相手にする
+	// エディタでcallされる
 	UFUNCTION(BlueprintCallable)
 	FVector GetRotationWarpTarget();
 
-	// P192.Warp Distance between character and CombatTarget
+	// P192.キャラが攻撃行動をとる時、戦闘相手にwarpする距離、
+	// default: 75.f、エディタで修正可能
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float WarpTargetDistance = 75.f;
 
-	// P159.声明角色死亡姿势的强枚举类型的成员变量
+	// P159.キャラの死亡動画
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TEnumAsByte<EDeathPose> DeathPose;
 
 	
 private:
-	// P180.按照 SectionName 播放特定动画蒙太奇
+	// P180.SectionNameよりMontageの動画をプレイする
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
-	// P180.随机播放 动画蒙太奇中的某一段，返回播放的动画编号
+	// P180.Montageの動画をランダムにプレイする、プレイした動画のSerial numberをreturnする
+	// 攻撃動画と死亡動画はランダムにプレイされる
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
-
-
-	// P103.声明动画蒙太奇成员变量: 攻击
+	
+	// P103.キャラの攻撃動画、エディタから代入
 	UPROPERTY(EditDefaultsOnly, Category = Combat)
 	UAnimMontage* AttackMontage;
 
-	// P103.声明动画蒙太奇成员变量: 收到攻击。将从蓝图中赋值
+	// P103.キャラの被ダメージ動画、エディタから代入
 	UPROPERTY(EditDefaultsOnly, Category = Combat)
 	UAnimMontage* HitReactMontage;
 
-	// P158.声明动画蒙太奇成员变量: 死亡。将从蓝图中赋值
+	// P158.キャラの死亡動画、エディタから代入
 	UPROPERTY(EditDefaultsOnly, Category = Combat)
 	UAnimMontage* DeathMontage;
 	
-	// P211.Declare a pointer to store montage from Blue print
+	// P211.キャラの回避動画、エディタから代入
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* DodgeMontage;
 	
-	// P180.保存攻击动画蒙太奇中 蒙太奇片段的名称的动态数组
+	// P180.Attack Montage中の動画のSection Name保存用配列、エディタから代入
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TArray<FName> AttackMontageSections;
 
-	// P180.保存攻击死亡蒙太奇中 蒙太奇片段的名称的动态数组
+	// P180.Death Montage中の動画のSection Name保存用配列、エディタから代入
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TArray<FName> DeathMontageSections;
 
-	// P132.声明一个从蓝图赋值 MetaSounds的 USoundBase* 类成员变量
+	// P132.被ダメージにプレイされる音声、エディタから代入
 	UPROPERTY(EditAnywhere, Category = Combat)
 	USoundBase* HitSound;
 
-	// P133.声明一个从蓝图赋值 被攻击时触发的粒子效果的 UParticleSystem* 类成员变量
+	// P133.被ダメージにプレイされるFX、エディタから代入
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UParticleSystem* HitParticles;
 

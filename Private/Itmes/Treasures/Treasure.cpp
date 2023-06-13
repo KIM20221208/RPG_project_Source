@@ -7,12 +7,13 @@
 void ATreasure::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor);
+	// P143.キャラが本クラスと衝突したら、キャラが持っているGold量を更新して本クラスを削除する。
 	if (PickupInterface)
 	{
 		PickupInterface->AddGold(this);
 		SpawnPickupSound();
-		// P143.如果角色与 Treasure 类发生了碰撞，则删除此类
 		Destroy();
+		
 	}
 
 }

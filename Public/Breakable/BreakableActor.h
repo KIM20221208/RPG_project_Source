@@ -11,43 +11,59 @@ class UGeometryCollectionComponent;
 class ATreasure;
 class UCapsuleComponent;
 
+/**
+ * 破壊可能なオブジェクトのバースクラス。
+ */
+
 UCLASS()
 class RPG_PROJECT_API ABreakableActor : public AActor, public IHitInterface
 {
 	GENERATED_BODY()
+
 	
 public:	
 	// Sets default values for this actor's properties
 	ABreakableActor();
+	
+	/** <AActor> */
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	/** </AActor> */
 
-	// P139.覆盖继承自 IHitInterface 的纯虚函数
+	/** <IHitInterface> */
+	// P139
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
-
+	/** </IHitInterface> */
+	
+	
 protected:
+	/** <AActor> */
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	/** </AActor> */
 
-	// P145.声明胶囊体组件，由于碎片原因设置了忽略Pawn类，防止角色穿透 BreakableActor 类
+	// P145.オブジエンドが環境との衝突判定用ボリューム。
+	// 破壊された後の破片の為、MeshをPawnクラスをIgnoreするように設定したため、キャラが破壊された以前のMeshとの衝突判定の為設定する。
+	// For do not let player penetrate this class, before broken.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UCapsuleComponent* Capsule;
 
+	
 private:
-	// P139.声明几何集合组件，由蓝图赋值
+	// P139.オブジェクトの破壊される形（エディタから作成）、エディタから代入。
 	UPROPERTY(VisibleAnywhere)
 	UGeometryCollectionComponent* GeometryCollection;
-
-	// P145.从蓝图中赋值，返回在UE5中初始化了 StaticMesh 的子类的类。相当于反向反射？ 
-	// P146.把原先的 TSubclassOf<ATreasure> 改成了 TArray<TSubclassOf<ATreasure>> ，在蓝图中可以初始化多个相似类，作为动态数组
-	/*
-	* 方法1：UClass* 
-	* 方法2：TSubclassOf<ClassTypeXXX> 返回所有模板内类的子类，当然包括 蓝图类
-	*/
+	
+	/**
+	 *方法1：UClass* 
+	 *方法2：TSubclassOf<ClassTypeXXX> Template内のクラスによって継承できた派生クラスまで保存出来る。
+	 */
+	// P145.破壊された後に生成される宝物の保存用動的配列。
+	// P146.元のTSubclassOf<ATreasure>をTArray<TSubclassOf<ATreasure>>に修正、エディタから代入。
 	UPROPERTY(EditAnywhere, Category = "Breakable Properties")
 	TArray<TSubclassOf<ATreasure>> TreasureClasses;
 
-	// P147.声明 bool型成员变量，只进行一次被攻击判定
+	// P147.破壊されているかを判断する、一回だけ破壊出来る。
 	bool bBroken = false;
 
 };
