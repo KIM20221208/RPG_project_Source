@@ -65,7 +65,8 @@ void ARPG_projectCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	// P212. フレームごとにスタミナを回復する、default regenerate value is 8.f / frame.
-	if (Attributes)
+	// Debug: Main Menu UIではRPG_projectOverlayが無い為、スタミナを更新する時にRPG_projectOverlayクラスの存在をcheckすべき。
+	if (Attributes && RPG_projectOverlay)
 	{
 		Attributes->RegenStamina(DeltaTime);
 		RPG_projectOverlay->SetStaminaProgressBarPercent(Attributes->GetStaminaPercent());
@@ -272,7 +273,8 @@ void ARPG_projectCharacter::Dodge()
 
 	PlayDodgeMontage();
 	ActionState = EActionState::EAS_Dodge;
-	if (Attributes)
+	// Debug: Main Menu UIではRPG_projectOverlayが無い為、スタミナを更新する時にRPG_projectOverlayクラスの存在をcheckすべき。
+	if (Attributes && RPG_projectOverlay)
 	{
 		Attributes->UseStamina(Attributes->GetDodgeCost());
 		RPG_projectOverlay->SetStaminaProgressBarPercent(Attributes->GetStaminaPercent());
@@ -428,7 +430,8 @@ void ARPG_projectCharacter::InitializeRPG_projectOverlay()
 
 void ARPG_projectCharacter::SetHUDHealth()
 {
-	if (Attributes)
+	// Debug: Main Menu UIではRPG_projectOverlayが無い為、スタミナを更新する時にRPG_projectOverlayクラスの存在をcheckすべき。
+	if (Attributes && RPG_projectOverlay)
 	{
 		RPG_projectOverlay->SetHealthProgressBarPercent(Attributes->GetHealthPercent());
 		

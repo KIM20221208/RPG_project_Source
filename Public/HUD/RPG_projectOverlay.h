@@ -23,7 +23,7 @@ public:
 	/**
 	　* Getter & Setter
 	　*/
-	// P196.Setter: Progress barの値をPercentageよりセットする。
+	// P196.Setter: Progress barの値をPercentageよりセットする、RPG_projectCharacterからcallされる。
 	void SetHealthProgressBarPercent(float Percent);
 	void SetStaminaProgressBarPercent(float Percent);
 	void SetGold(int32 Gold);
