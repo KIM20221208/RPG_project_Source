@@ -55,19 +55,3 @@ void UInGamePauseUI::OnBackToMainMenuButtonClick()
 	// TODO: Back To Main Menu, && Main Menu
 	
 }
-
-void UInGamePauseUI::OnQuitButtonClick()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		APlayerController* PlayerController = World->GetFirstPlayerController();
-		if (PlayerController)
-		{
-			UKismetSystemLibrary::QuitGame(World, PlayerController, EQuitPreference::Quit, false);
-			
-		}
-		
-	}
-	
-}

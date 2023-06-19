@@ -7,6 +7,7 @@
 void UGameOverUI::NativePreConstruct()
 {
 	Super::NativePreConstruct();
+	
 	// OnRestartButtonClickメリットは親クラス（UMyUserWidget）に定義されている。
 	RestartButton->OnClicked.AddDynamic(this, &UGameOverUI::OnRestartButtonClick);
 	

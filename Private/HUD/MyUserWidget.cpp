@@ -4,23 +4,208 @@
 #include "HUD/MyUserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "HUD/SettingsButtonsUI.h"
+#include "HUD/FadeUI.h"
+#include "HUD/MainMenuButtonsUI.h"
+#include "GameFramework/GameUserSettings.h"
 
-void UMyUserWidget::OnRestartButtonClick()
+void UMyUserWidget::GenerateMainMenuButtonsUI()
 {
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		APlayerController* PlayerController = World->GetFirstPlayerController();
-		if (PlayerController)
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller && UMainMenuButtonsClass)
+		{
+			MainMenuButtonsUI = CreateWidget<UMainMenuButtonsUI>(Controller, UMainMenuButtonsClass);
+			MainMenuButtonsUI->AddToViewport();
+			UUserWidget::RemoveFromParent();
+			
+		}
+		
+	}
+	
+}
+
+void UMyUserWidget::GenerateSettingsButtonsUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller && USettingsButtonsClass)
+		{
+			SettingsButtonsUI = CreateWidget<USettingsButtonsUI>(Controller, USettingsButtonsClass);
+			SettingsButtonsUI->AddToViewport();
+			UUserWidget::RemoveFromParent();
+			
+		}
+		
+	}
+	
+}
+
+void UMyUserWidget::StartNewGame()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller)
 		{
 			// Input modeを"gameOnly"から"UIOnly"に変更する。
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerController);
+			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller);
 			// 特定のLevelを開く。
-			UGameplayStatics::OpenLevel(World, FName("Minimal_Default"));
+			UGameplayStatics::OpenLevel(World, FName("MyDefaultMap"));
 			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
 			UUserWidget::RemoveFromParent();
 			// Input modeを"game"に戻す。
-			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(Controller);
+			
+		}
+		
+	}
+	
+}
+
+void UMyUserWidget::QuitGame()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller)
+		{
+			UKismetSystemLibrary::QuitGame(World, Controller, EQuitPreference::Quit, false);
+			UUserWidget::RemoveFromParent();
+			
+		}
+		
+	}
+	
+}
+
+void UMyUserWidget::SwitchOverallScalabilityLevel(EOverallScalabilityLevelState ToSet)
+{
+	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+	if (GameUserSettings)
+	{
+		OverallScalabilityLevelState = ToSet;
+		int32 EnumToInt = static_cast<int32>(OverallScalabilityLevelState);
+		GameUserSettings->SetOverallScalabilityLevel(EnumToInt);
+		GameUserSettings->ApplySettings(true);
+    		
+	}
+	
+}
+
+void UMyUserWidget::OnRestartButtonClick()
+{
+	CloseUIFX();
+	
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(
+			FadeInTimerHandle,
+			this,
+			&UMyUserWidget::StartNewGame,
+			CloseUIDelay,
+			false
+			);
+		
+	}
+	
+}
+
+void UMyUserWidget::OnSettingsButtonClick()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(
+			FadeInTimerHandle,
+			this,
+			&UMyUserWidget::GenerateSettingsButtonsUI,
+			SwitchUIDelay,
+			false
+			);
+		
+	}
+	
+}
+
+void UMyUserWidget::OnQuitButtonClick()
+{
+	CloseUIFX();
+	
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(
+			FadeInTimerHandle,
+			this,
+			&UMyUserWidget::QuitGame,
+			CloseUIDelay,
+			false
+			);
+		
+	}
+	
+}
+
+void UMyUserWidget::OnLowButtonClicked()
+{
+	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Low);
+	
+}
+
+void UMyUserWidget::OnMediumButtonClicked()
+{
+	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Medium);
+	
+}
+
+void UMyUserWidget::OnHighButtonClicked()
+{
+	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_High);
+	
+}
+
+void UMyUserWidget::OnUltraButtonClicked()
+{
+	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Ultra);
+	
+}
+
+void UMyUserWidget::OnBackButtonClicked()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(
+			FadeInTimerHandle,
+			this,
+			&UMyUserWidget::GenerateMainMenuButtonsUI,
+			SwitchUIDelay,
+			false
+			);
+		
+	}
+	
+}
+
+void UMyUserWidget::CloseUIFX()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller && UFadeClass)
+		{
+			FadeUI = CreateWidget<UFadeUI>(Controller, UFadeClass);
+			FadeUI->AddToViewport();
+			FadeUI->PlayFadeInAnimation();
 			
 		}
 		

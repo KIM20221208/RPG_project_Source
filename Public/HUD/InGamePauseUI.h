@@ -34,10 +34,6 @@ protected:
 	UFUNCTION()
 	void OnBackToMainMenuButtonClick();
 
-	// ゲームを終了する。
-	UFUNCTION()
-	void OnQuitButtonClick();
-
 	
 private:
 	// Button widget: ゲームリスタートボタン。
