@@ -19,7 +19,6 @@ class RPG_PROJECT_API USettingsButtonsUI : public UMyUserWidget
 
 
 protected:
-	
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
 	virtual void OnBackButtonClicked() override;

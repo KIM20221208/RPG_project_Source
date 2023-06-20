@@ -33,6 +33,8 @@ protected:
 	void QuitGame();
 	//
 	void SwitchOverallScalabilityLevel(EOverallScalabilityLevelState ToSet);
+	//
+	void SwitchScreenResolution(const int X, const int Y);
 	
 	// ゲームをリスタートする。
 	UFUNCTION()
@@ -61,6 +63,19 @@ protected:
 	//
 	UFUNCTION()
 	void OnUltraButtonClicked();
+
+	//
+	UFUNCTION()
+	void OnButton1280_720Clicked();
+
+	//
+	UFUNCTION()
+	void OnButton1920_1080Clicked();
+	
+	//
+	UFUNCTION()
+	void OnButton2560_1440Clicked();
+	
 	
 	//
 	UFUNCTION()
