@@ -2,20 +2,12 @@
 
 
 #include "HUD/SettingsButtonsUI.h"
-#include "Animation/MovieSceneUMGComponentTypes.h"
 #include "Components/Button.h"
-
-void USettingsButtonsUI::FadeInFX()
-{
-	PlayAnimation(FadeIn);
-	
-}
-
-void USettingsButtonsUI::FadeOutFX()
-{
-	PlayAnimation(FadeIn, 0, 1, EUMGSequencePlayMode::Reverse);
-	
-}
+#include "Components/CheckBox.h"
+#include "GameFramework/GameUserSettings.h"
+#include "HUD/ScreenResolutionButtonsUI.h"
+#include "HUD/GraphicPresetButtonsUI.h"
+#include "HUD/SettingsBackGroundUI.h"
 
 void USettingsButtonsUI::NativePreConstruct()
 {
@@ -25,26 +17,126 @@ void USettingsButtonsUI::NativePreConstruct()
 	FadeInFX();
 
 	//
-	LowButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnLowButtonClicked);
-	LowButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnLowButtonHovered);
-	LowButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnLowButtonUnhovered);
+	ScreenResolutionButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionButtonClicked);
+	ScreenResolutionButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionButtonHovered);
+	ScreenResolutionButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionButtonUnhovered);
 
-	MediumButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnMediumButtonClicked);
-	MediumButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnMediumButtonHovered);
-	MediumButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnMediumButtonUnhovered);
-	
-	HighButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnHighButtonClicked);
-	HighButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnHighButtonHovered);
-	HighButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnHighButtonUnhovered);
-	
-	UltraButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnUltraButtonClicked);
-	UltraButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnUltraButtonHovered);
-	UltraButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnUltraButtonUnhovered);
-	
+	GraphicPresetButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetButtonClicked);
+	GraphicPresetButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetButtonHovered);
+	GraphicPresetButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetButtonUnhovered);
 
+	FullScreenCheckBox->OnCheckStateChanged.AddDynamic(this, &USettingsButtonsUI::OnFullScreenCheckBoxStateChanged);
+	
 	BackButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnBackButtonClicked);
 	BackButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnBackButtonHovered);
 	BackButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnBackButtonUnhovered);
+	
+}
+
+void USettingsButtonsUI::CloseSettingsButtonsUI()
+{
+	UUserWidget::RemoveFromParent();
+	// TODO: Close Settings Background UI.
+	// CloseSettingsBackGround();
+	USettingsBackGroundUI* ToRemove = Cast<USettingsBackGroundUI>(UUserWidget::GetParent());
+	if (ToRemove)
+	{
+		ToRemove->CloseSettingsBackGroundUI();
+		
+	}
+	
+}
+
+void USettingsButtonsUI::GenerateScreenResolutionButtonsUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller && UScreenResolutionButtonsClass)
+		{
+			ScreenResolutionButtonsUI = CreateWidget<UScreenResolutionButtonsUI>(Controller, UScreenResolutionButtonsClass);
+			ScreenResolutionButtonsUI->AddToViewport();
+			
+		}
+		
+	}
+	
+}
+
+void USettingsButtonsUI::GenerateGraphicPresetButtonsUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller && UGraphicButtonsClass)
+		{
+			GraphicPresetButtonsUI = CreateWidget<UGraphicPresetButtonsUI>(Controller, UGraphicButtonsClass);
+			GraphicPresetButtonsUI->AddToViewport();
+			
+		}
+		
+	}
+	
+}
+
+void USettingsButtonsUI::OnScreenResolutionButtonClicked()
+{
+	GenerateScreenResolutionButtonsUI();
+	
+}
+
+void USettingsButtonsUI::OnScreenResolutionButtonHovered()
+{
+	PlayAnimation(ScreenResolutionButtonHover);
+	
+}
+
+void USettingsButtonsUI::OnScreenResolutionButtonUnhovered()
+{
+	PlayAnimation(ScreenResolutionButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
+	
+}
+
+void USettingsButtonsUI::OnGraphicPresetButtonClicked()
+{
+	GenerateGraphicPresetButtonsUI();
+	
+}
+
+void USettingsButtonsUI::OnGraphicPresetButtonHovered()
+{
+	PlayAnimation(GraphicPresetButtonHover);
+	
+}
+
+void USettingsButtonsUI::OnGraphicPresetButtonUnhovered()
+{
+	PlayAnimation(GraphicPresetButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
+	
+}
+
+void USettingsButtonsUI::OnFullScreenCheckBoxStateChanged(bool bChange)
+{
+	
+	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+	if (GameUserSettings)
+	{
+		// If Check Box is checked.
+		if(bChange)
+		{
+			GameUserSettings->SetFullscreenMode(EWindowMode::Fullscreen);
+			
+		}
+		else
+		{
+			GameUserSettings->SetFullscreenMode(EWindowMode::Windowed);
+			
+		}
+		GameUserSettings->ApplySettings(true);
+		
+	}
 	
 }
 
@@ -52,55 +144,18 @@ void USettingsButtonsUI::OnBackButtonClicked()
 {
 	DisableButtons();
 	FadeOutFX();
-	Super::OnBackButtonClicked();
-	
-}
-
-void USettingsButtonsUI::OnLowButtonHovered()
-{
-	PlayAnimation(LowButtonHover);
-	
-}
-
-void USettingsButtonsUI::OnLowButtonUnhovered()
-{
-	PlayAnimation(LowButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
-	
-}
-
-void USettingsButtonsUI::OnMediumButtonHovered()
-{
-	PlayAnimation(MediumButtonHover);
-	
-}
-
-void USettingsButtonsUI::OnMediumButtonUnhovered()
-{
-	PlayAnimation(MediumButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
-	
-}
-
-void USettingsButtonsUI::OnHighButtonHovered()
-{
-	PlayAnimation(HighButtonHover);
-	
-}
-
-void USettingsButtonsUI::OnHighButtonUnhovered()
-{
-	PlayAnimation(HighButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
-	
-}
-
-void USettingsButtonsUI::OnUltraButtonHovered()
-{
-	PlayAnimation(UltraButtonHover);
-	
-}
-
-void USettingsButtonsUI::OnUltraButtonUnhovered()
-{
-	PlayAnimation(UltraButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->GetTimerManager().SetTimer(
+			FadeInTimerHandle,
+			this,
+			&USettingsButtonsUI::CloseSettingsButtonsUI,
+			SwitchUIDelay,
+			false
+			);
+		
+	}
 	
 }
 
@@ -119,10 +174,21 @@ void USettingsButtonsUI::OnBackButtonUnhovered()
 void USettingsButtonsUI::DisableButtons()
 {
 	//
-	LowButton->SetVisibility(ESlateVisibility::HitTestInvisible);
-	MediumButton->SetVisibility(ESlateVisibility::HitTestInvisible);
-	HighButton->SetVisibility(ESlateVisibility::HitTestInvisible);
-	UltraButton->SetVisibility(ESlateVisibility::HitTestInvisible);
+	ScreenResolutionButton->SetVisibility(ESlateVisibility::HitTestInvisible);
+	GraphicPresetButton->SetVisibility(ESlateVisibility::HitTestInvisible);
+	FullScreenCheckBox->SetVisibility(ESlateVisibility::HitTestInvisible);
 	BackButton->SetVisibility(ESlateVisibility::HitTestInvisible);
+	
+}
+
+void USettingsButtonsUI::FadeInFX()
+{
+	PlayAnimation(FadeIn);
+	
+}
+
+void USettingsButtonsUI::FadeOutFX()
+{
+	PlayAnimation(FadeIn, 0, 1, EUMGSequencePlayMode::Reverse);
 	
 }

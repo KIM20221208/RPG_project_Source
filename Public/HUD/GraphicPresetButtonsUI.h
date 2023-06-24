@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "HUD/MyUserWidget.h"
+#include "HUD/OverallScalabilityLevelTypes.h"
 #include "GraphicPresetButtonsUI.generated.h"
 
-
 class UButton;
+
 /**
- * 
+ * ゲームの画質に関するSettings Buttons。
  */
+
 UCLASS()
 class RPG_PROJECT_API UGraphicPresetButtonsUI : public UMyUserWidget
 {
@@ -20,6 +22,24 @@ class RPG_PROJECT_API UGraphicPresetButtonsUI : public UMyUserWidget
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
+
+	//
+	void SwitchOverallScalabilityLevel(EOverallScalabilityLevelState ToSet);
+	//
+	void CloseGraphicPresetButtonsUI();
+	
+	UFUNCTION()
+	void OnLowButtonClicked();
+	
+	UFUNCTION()
+	void OnMediumButtonClicked();
+	
+	UFUNCTION()
+	void OnHighButtonClicked();
+	
+	UFUNCTION()
+	void OnUltraButtonClicked();
+	
 
 private:
 	// Button widget: 
@@ -37,5 +57,8 @@ private:
 	// Button widget: 
 	UPROPERTY(meta = (BindWidget))
 	UButton* UltraButton;
+
+	// ゲームの画質に関するSettingsの列挙型変数、default: High。
+	EOverallScalabilityLevelState OverallScalabilityLevelState = EOverallScalabilityLevelState::EOSLS_High;
 	
 };

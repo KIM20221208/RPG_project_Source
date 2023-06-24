@@ -8,7 +8,7 @@
 
 class UButton;
 /**
- * 
+ * 画面解像度の調整に関するSettings Buttons。
  */
 UCLASS()
 class RPG_PROJECT_API UScreenResolutionButtonsUI : public UMyUserWidget
@@ -18,6 +18,20 @@ class RPG_PROJECT_API UScreenResolutionButtonsUI : public UMyUserWidget
 
 protected:
 	virtual void NativePreConstruct() override;
+	
+	//
+	void SwitchScreenResolution(const int X, const int Y);
+	void CloseScreenResolutionButtonsUI();
+	
+	//
+	UFUNCTION()
+	void OnButton1280_720Clicked();
+	
+	UFUNCTION()
+	void OnButton1920_1080Clicked();
+	
+	UFUNCTION()
+	void OnButton2560_1440Clicked();
 
 
 private:

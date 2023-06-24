@@ -22,7 +22,6 @@ protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
 	virtual void OnRestartButtonClick() override;
-	virtual void OnSettingsButtonClick() override;
 	virtual void OnQuitButtonClick() override;
 
 	//

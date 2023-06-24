@@ -6,38 +6,20 @@
 #include "Kismet/GameplayStatics.h"
 #include "HUD/SettingsButtonsUI.h"
 #include "HUD/FadeUI.h"
-#include "HUD/MainMenuButtonsUI.h"
-#include "GameFramework/GameUserSettings.h"
+#include "HUD/SettingsBackGroundUI.h"
 
-void UMyUserWidget::GenerateMainMenuButtonsUI()
+void UMyUserWidget::GenerateSettingsUI()
 {
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller && UMainMenuButtonsClass)
+		if (Controller && USettingsButtonsClass && USettingsBackGroundClass)
 		{
-			MainMenuButtonsUI = CreateWidget<UMainMenuButtonsUI>(Controller, UMainMenuButtonsClass);
-			MainMenuButtonsUI->AddToViewport();
-			UUserWidget::RemoveFromParent();
-			
-		}
-		
-	}
-	
-}
-
-void UMyUserWidget::GenerateSettingsButtonsUI()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller && USettingsButtonsClass)
-		{
+			SettingsBackGroundUI = CreateWidget<USettingsBackGroundUI>(Controller, USettingsBackGroundClass);
+			SettingsBackGroundUI->AddToViewport();
 			SettingsButtonsUI = CreateWidget<USettingsButtonsUI>(Controller, USettingsButtonsClass);
 			SettingsButtonsUI->AddToViewport();
-			UUserWidget::RemoveFromParent();
 			
 		}
 		
@@ -85,34 +67,6 @@ void UMyUserWidget::QuitGame()
 	
 }
 
-void UMyUserWidget::SwitchOverallScalabilityLevel(EOverallScalabilityLevelState ToSet)
-{
-	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
-	if (GameUserSettings)
-	{
-		OverallScalabilityLevelState = ToSet;
-		int32 EnumToInt = static_cast<int32>(OverallScalabilityLevelState);
-		GameUserSettings->SetOverallScalabilityLevel(EnumToInt);
-		GameUserSettings->ApplySettings(true);
-    		
-	}
-	
-}
-
-void UMyUserWidget::SwitchScreenResolution(const int XCoordinate, const int YCoordinate)
-{
-	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
-	if (GameUserSettings)
-	{
-		FIntPoint Resolution = FIntPoint(XCoordinate, YCoordinate);
-		GameUserSettings->SetScreenResolution(Resolution);
-		GameUserSettings->ApplyResolutionSettings(false);
-		GameUserSettings->ApplySettings(true);
-		
-	}
-	
-}
-
 void UMyUserWidget::OnRestartButtonClick()
 {
 	CloseUIFX();
@@ -140,7 +94,7 @@ void UMyUserWidget::OnSettingsButtonClick()
 		World->GetTimerManager().SetTimer(
 			FadeInTimerHandle,
 			this,
-			&UMyUserWidget::GenerateSettingsButtonsUI,
+			&UMyUserWidget::GenerateSettingsUI,
 			SwitchUIDelay,
 			false
 			);
@@ -167,66 +121,7 @@ void UMyUserWidget::OnQuitButtonClick()
 	}
 	
 }
-
-void UMyUserWidget::OnLowButtonClicked()
-{
-	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Low);
-	
-}
-
-void UMyUserWidget::OnMediumButtonClicked()
-{
-	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Medium);
-	
-}
-
-void UMyUserWidget::OnHighButtonClicked()
-{
-	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_High);
-	
-}
-
-void UMyUserWidget::OnUltraButtonClicked()
-{
-	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Ultra);
-	
-}
-
-void UMyUserWidget::OnButton1280_720Clicked()
-{
-	SwitchScreenResolution(1280, 720);
-	
-}
-
-void UMyUserWidget::OnButton1920_1080Clicked()
-{
-	SwitchScreenResolution(1920, 1080);
-	
-}
-
-void UMyUserWidget::OnButton2560_1440Clicked()
-{
-	SwitchScreenResolution(2560, 1440);
-	
-}
-
-void UMyUserWidget::OnBackButtonClicked()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		World->GetTimerManager().SetTimer(
-			FadeInTimerHandle,
-			this,
-			&UMyUserWidget::GenerateMainMenuButtonsUI,
-			SwitchUIDelay,
-			false
-			);
-		
-	}
-	
-}
-
+ 
 void UMyUserWidget::CloseUIFX()
 {
 	UWorld* World = GetWorld();

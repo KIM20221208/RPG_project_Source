@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SettingsBackGroundUI.h"
 #include "Blueprint/UserWidget.h"
-#include "HUD/OverallScalabilityLevelTypes.h"
 #include "MyUserWidget.generated.h"
 
 class UFadeUI;
 class USettingsButtonsUI;
 class UMainMenuButtonsUI;
-
+class USettingsBackGroundUI;
 
 /**
  * Parent class of all Widget of this game
@@ -21,20 +21,23 @@ class RPG_PROJECT_API UMyUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+
+public:
+	//
+	UPROPERTY()
+	USettingsBackGroundUI* SettingsBackGroundUI;
+	
 	
 protected:
 	//
-	void GenerateMainMenuButtonsUI();
-	void GenerateSettingsButtonsUI();
-	
+	void GenerateSettingsUI();
+	//
+	UFUNCTION()
+	void CloseSettingsBackGround() { SettingsBackGroundUI->CloseSettingsBackGroundUI(); }
 	//
 	void StartNewGame();
 	//
 	void QuitGame();
-	//
-	void SwitchOverallScalabilityLevel(EOverallScalabilityLevelState ToSet);
-	//
-	void SwitchScreenResolution(const int X, const int Y);
 	
 	// ゲームをリスタートする。
 	UFUNCTION()
@@ -47,39 +50,6 @@ protected:
 	// ゲームを終了する。
 	UFUNCTION()
 	virtual void OnQuitButtonClick();
-	
-	//
-	UFUNCTION()
-	void OnLowButtonClicked();
-
-	//
-	UFUNCTION()
-	void OnMediumButtonClicked();
-
-	//
-	UFUNCTION()
-	void OnHighButtonClicked();
-
-	//
-	UFUNCTION()
-	void OnUltraButtonClicked();
-
-	//
-	UFUNCTION()
-	void OnButton1280_720Clicked();
-
-	//
-	UFUNCTION()
-	void OnButton1920_1080Clicked();
-	
-	//
-	UFUNCTION()
-	void OnButton2560_1440Clicked();
-	
-	
-	//
-	UFUNCTION()
-	virtual void OnBackButtonClicked();
 
 	//　UIが切り替える時の動画。
 	UFUNCTION()
@@ -96,7 +66,7 @@ protected:
 	
 private:
 	// 
-	UPROPERTY(EditAnywhere, Category=ToOpenUI)
+	UPROPERTY(EditAnywhere, Category=MainMenuToOpenUI)
 	TSubclassOf<UFadeUI> UFadeClass;
 
 	//
@@ -104,25 +74,18 @@ private:
 	UFadeUI* FadeUI;
 
 	// 
-	UPROPERTY(EditAnywhere, Category=ToOpenUI)
+	UPROPERTY(EditAnywhere, Category=MainMenuToOpenUI)
 	TSubclassOf<USettingsButtonsUI> USettingsButtonsClass;
 	
 	//
 	UPROPERTY()
 	USettingsButtonsUI* SettingsButtonsUI;
 
-	// 
-	UPROPERTY(EditAnywhere, Category=ToOpenUI)
-	TSubclassOf<UMainMenuButtonsUI> UMainMenuButtonsClass;
-
 	//
-	UPROPERTY()
-	UMainMenuButtonsUI* MainMenuButtonsUI;
+	UPROPERTY(EditAnywhere, Category=MainMenuToOpenUI)
+	TSubclassOf<USettingsBackGroundUI> USettingsBackGroundClass;
 
 	//
 	FTimerHandle FadeInTimerHandle;
-
-	// ゲームの画質に関するSettingsの列挙型変数、default: High。
-	EOverallScalabilityLevelState OverallScalabilityLevelState = EOverallScalabilityLevelState::EOSLS_High;
 	
 };

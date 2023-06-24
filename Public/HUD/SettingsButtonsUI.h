@@ -6,7 +6,10 @@
 #include "HUD/MyUserWidget.h"
 #include "SettingsButtonsUI.generated.h"
 
+class UCheckBox;
 class UButton;
+class UScreenResolutionButtonsUI;
+class UGraphicPresetButtonsUI;
 
 /**
  * 画面効果調整に関するUI。
@@ -21,25 +24,29 @@ class RPG_PROJECT_API USettingsButtonsUI : public UMyUserWidget
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
-	virtual void OnBackButtonClicked() override;
 
 	//
+	void GenerateScreenResolutionButtonsUI();
+	void GenerateGraphicPresetButtonsUI();
+	void CloseSettingsButtonsUI();
+	
+	//
 	UFUNCTION()
-	void OnLowButtonHovered();
+	void OnScreenResolutionButtonClicked();
 	UFUNCTION()
-	void OnLowButtonUnhovered();
+	void OnScreenResolutionButtonHovered();
 	UFUNCTION()
-	void OnMediumButtonHovered();
+	void OnScreenResolutionButtonUnhovered();
 	UFUNCTION()
-	void OnMediumButtonUnhovered();
+	void OnGraphicPresetButtonClicked();
 	UFUNCTION()
-	void OnHighButtonHovered();
+	void OnGraphicPresetButtonHovered();
 	UFUNCTION()
-	void OnHighButtonUnhovered();
+	void OnGraphicPresetButtonUnhovered();
 	UFUNCTION()
-	void OnUltraButtonHovered();
+	void OnFullScreenCheckBoxStateChanged(bool bChange);
 	UFUNCTION()
-	void OnUltraButtonUnhovered();
+	virtual void OnBackButtonClicked();
 	UFUNCTION()
 	void OnBackButtonHovered();
 	UFUNCTION()
@@ -56,20 +63,16 @@ protected:
 private:
 	// Button widget: 
 	UPROPERTY(meta = (BindWidget))
-	UButton* LowButton;
+	UButton* ScreenResolutionButton;
 	
 	// Button widget: 
 	UPROPERTY(meta = (BindWidget))
-	UButton* MediumButton;
+	UButton* GraphicPresetButton;
 	
-	// Button widget: 
+	// CheckBox widget: 
 	UPROPERTY(meta = (BindWidget))
-	UButton* HighButton;
-
-	// Button widget: 
-	UPROPERTY(meta = (BindWidget))
-	UButton* UltraButton;
-
+	UCheckBox* FullScreenCheckBox;
+	
 	// Button widget: 
 	UPROPERTY(meta = (BindWidget))
 	UButton* BackButton;
@@ -78,18 +81,33 @@ private:
 	UWidgetAnimation* FadeIn;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* LowButtonHover;
+	UWidgetAnimation* ScreenResolutionButtonHover;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* MediumButtonHover;
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* HighButtonHover;
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* UltraButtonHover;
+	UWidgetAnimation* GraphicPresetButtonHover;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* BackButtonHover;
+
+	
+	//
+	UPROPERTY(EditAnywhere, Category=SettingsMenuToOpenUI)
+	TSubclassOf<UScreenResolutionButtonsUI> UScreenResolutionButtonsClass;
+	
+	//
+	UPROPERTY()
+	UScreenResolutionButtonsUI* ScreenResolutionButtonsUI;
+
+	//
+	UPROPERTY(EditAnywhere, Category=SettingsMenuToOpenUI)
+	TSubclassOf<UGraphicPresetButtonsUI> UGraphicButtonsClass;
+
+	//
+	UPROPERTY()
+	UGraphicPresetButtonsUI* GraphicPresetButtonsUI;
+
+	
+	//
+	FTimerHandle FadeInTimerHandle;
 	
 };

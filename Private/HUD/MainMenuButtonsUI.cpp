@@ -33,14 +33,6 @@ void UMainMenuButtonsUI::OnRestartButtonClick()
 	
 }
 
-void UMainMenuButtonsUI::OnSettingsButtonClick()
-{
-	DisableButtons();
-	FadeOutFX();
-	Super::OnSettingsButtonClick();
-	
-}
-
 void UMainMenuButtonsUI::OnQuitButtonClick()
 {
 	DisableButtons();
