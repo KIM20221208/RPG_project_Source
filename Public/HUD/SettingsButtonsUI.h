@@ -10,6 +10,7 @@ class UCheckBox;
 class UButton;
 class UScreenResolutionButtonsUI;
 class UGraphicPresetButtonsUI;
+class USettingsBackGroundUI;
 
 /**
  * 画面効果調整に関するUI。
@@ -26,6 +27,7 @@ protected:
 	virtual void NativePreConstruct() override;
 
 	//
+	void GenerateSettingsBackGroundUI();
 	void GenerateScreenResolutionButtonsUI();
 	void GenerateGraphicPresetButtonsUI();
 	void CloseSettingsButtonsUI();
@@ -89,6 +91,13 @@ private:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* BackButtonHover;
 
+	//
+	UPROPERTY(EditAnywhere, Category=SettingsMenuToOpenUI)
+	TSubclassOf<USettingsBackGroundUI> USettingsBackGroundClass;
+
+	//
+	UPROPERTY()
+	USettingsBackGroundUI* SettingsBackGroundUI;
 	
 	//
 	UPROPERTY(EditAnywhere, Category=SettingsMenuToOpenUI)
@@ -108,6 +117,6 @@ private:
 
 	
 	//
-	FTimerHandle FadeInTimerHandle;
+	FTimerHandle FadeTimerHandle;
 	
 };

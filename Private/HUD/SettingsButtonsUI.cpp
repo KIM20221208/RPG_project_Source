@@ -12,6 +12,7 @@
 void USettingsButtonsUI::NativePreConstruct()
 {
 	Super::NativePreConstruct();
+	GenerateSettingsBackGroundUI();
 
 	//
 	FadeInFX();
@@ -33,15 +34,31 @@ void USettingsButtonsUI::NativePreConstruct()
 	
 }
 
+void USettingsButtonsUI::GenerateSettingsBackGroundUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller && USettingsBackGroundClass)
+		{
+			SettingsBackGroundUI = CreateWidget<USettingsBackGroundUI>(Controller, USettingsBackGroundClass);
+			SettingsBackGroundUI->AddToViewport();
+			
+		}
+		
+	}
+	
+}
+
 void USettingsButtonsUI::CloseSettingsButtonsUI()
 {
 	UUserWidget::RemoveFromParent();
-	// TODO: Close Settings Background UI.
-	// CloseSettingsBackGround();
-	USettingsBackGroundUI* ToRemove = Cast<USettingsBackGroundUI>(UUserWidget::GetParent());
-	if (ToRemove)
+
+	// Close Settings BackGround.
+	if (SettingsBackGroundUI)
 	{
-		ToRemove->CloseSettingsBackGroundUI();
+		SettingsBackGroundUI->CloseSettingsBackGroundUI();
 		
 	}
 	
@@ -144,14 +161,15 @@ void USettingsButtonsUI::OnBackButtonClicked()
 {
 	DisableButtons();
 	FadeOutFX();
+	SettingsBackGroundUI->FadeOutFX();
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(
-			FadeInTimerHandle,
+			FadeTimerHandle,
 			this,
 			&USettingsButtonsUI::CloseSettingsButtonsUI,
-			SwitchUIDelay,
+			CloseUIDelay,
 			false
 			);
 		

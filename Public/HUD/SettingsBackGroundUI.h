@@ -19,7 +19,10 @@ public:
 	//
 	UFUNCTION()
 	void CloseSettingsBackGroundUI();
-	
+	//
+	UFUNCTION()
+	void FadeOutFX();
+
 	
 protected:
 	virtual void NativePreConstruct() override;
@@ -27,10 +30,8 @@ protected:
 	//
 	UFUNCTION()
 	void FadeInFX();
-	UFUNCTION()
-	void FadeOutFx();
-
 	
+
 private:
 	//
 	UPROPERTY(Transient, meta = (BindWidgetAnim))

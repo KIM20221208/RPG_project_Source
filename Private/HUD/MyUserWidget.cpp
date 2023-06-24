@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "HUD/SettingsButtonsUI.h"
 #include "HUD/FadeUI.h"
-#include "HUD/SettingsBackGroundUI.h"
+
 
 void UMyUserWidget::GenerateSettingsUI()
 {
@@ -14,10 +14,8 @@ void UMyUserWidget::GenerateSettingsUI()
 	if (World)
 	{
 		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller && USettingsButtonsClass && USettingsBackGroundClass)
+		if (Controller && USettingsButtonsClass)
 		{
-			SettingsBackGroundUI = CreateWidget<USettingsBackGroundUI>(Controller, USettingsBackGroundClass);
-			SettingsBackGroundUI->AddToViewport();
 			SettingsButtonsUI = CreateWidget<USettingsButtonsUI>(Controller, USettingsButtonsClass);
 			SettingsButtonsUI->AddToViewport();
 			
@@ -43,7 +41,7 @@ void UMyUserWidget::StartNewGame()
 			UUserWidget::RemoveFromParent();
 			// Input modeを"game"に戻す。
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(Controller);
-			
+			 
 		}
 		
 	}
@@ -75,7 +73,7 @@ void UMyUserWidget::OnRestartButtonClick()
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(
-			FadeInTimerHandle,
+			FadeTimerHandle,
 			this,
 			&UMyUserWidget::StartNewGame,
 			CloseUIDelay,
@@ -92,7 +90,7 @@ void UMyUserWidget::OnSettingsButtonClick()
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(
-			FadeInTimerHandle,
+			FadeTimerHandle,
 			this,
 			&UMyUserWidget::GenerateSettingsUI,
 			SwitchUIDelay,
@@ -111,7 +109,7 @@ void UMyUserWidget::OnQuitButtonClick()
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(
-			FadeInTimerHandle,
+			FadeTimerHandle,
 			this,
 			&UMyUserWidget::QuitGame,
 			CloseUIDelay,
