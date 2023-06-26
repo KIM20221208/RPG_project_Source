@@ -8,6 +8,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 void ARPG_projectHUD::ShowGameOverUI()
 {
@@ -20,10 +21,11 @@ void ARPG_projectHUD::ShowGameOverUI()
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller && UGameOverClass)
 		{
-			GameOverUI = CreateWidget<UGameOverUI>(Controller, UGameOverClass);
-			GameOverUI->AddToViewport();
+			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller);
 			// マウスのコントロールを許可する。
 			Controller->bShowMouseCursor = true;
+			GameOverUI = CreateWidget<UGameOverUI>(Controller, UGameOverClass);
+			GameOverUI->AddToViewport();
 			// HUD stateを"Game Over"に設定する。
 			HUDState = EHUDState::EHS_GameOver;
 			
@@ -42,12 +44,13 @@ void ARPG_projectHUD::ShowInGamePauseUI()
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller && UInGamePauseClass)
 		{
-			InGamePauseUI = CreateWidget<UInGamePauseUI>(Controller, UInGamePauseClass);
-			InGamePauseUI->AddToViewport();
-			// マウスのコントロールを許可する。
-			Controller->bShowMouseCursor = true;
 			// オプションUIの時、ゲームを一時停止する。
 			UGameplayStatics::SetGamePaused(World, true);
+			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller);
+			// マウスのコントロールを許可する。
+			Controller->bShowMouseCursor = true;
+			InGamePauseUI = CreateWidget<UInGamePauseUI>(Controller, UInGamePauseClass);
+			InGamePauseUI->AddToViewport();
 			// // HUD stateを"In Game Pause"に設定する。
 			HUDState = EHUDState::EHS_InGamePause;
 			

@@ -33,15 +33,13 @@ void UMyUserWidget::StartNewGame()
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller)
 		{
-			// Input modeを"gameOnly"から"UIOnly"に変更する。
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller);
 			// 特定のLevelを開く。
 			UGameplayStatics::OpenLevel(World, FName("MyDefaultMap"));
 			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
 			UUserWidget::RemoveFromParent();
 			// Input modeを"game"に戻す。
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(Controller);
-			 
+			
 		}
 		
 	}

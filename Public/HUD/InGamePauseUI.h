@@ -27,12 +27,44 @@ public:
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
-	
+	virtual void OnRestartButtonClick() override;
+	virtual void OnQuitButtonClick() override;
+
 	UFUNCTION()
-	void OnOptionButtonClick();
+	void OnResumeButtonHovered();
+
+	UFUNCTION()
+	void OnResumeButtonUnhovered();
+
+	UFUNCTION()
+	void OnRestartButtonHovered();
+
+	UFUNCTION()
+	void OnRestartButtonUnhovered();
+
+	UFUNCTION()
+	void OnSettingButtonHovered();
+
+	UFUNCTION()
+	void OnSettingButtonUnhovered();
+
+	UFUNCTION()
+	void OnBackToMainMenuButtonHovered();
+
+	UFUNCTION()
+	void OnBackToMainMenuButtonUnhovered();
+
+	UFUNCTION()
+	void OnQuitButtonHovered();
+
+	UFUNCTION()
+	void OnQuitButtonUnhovered();
 	
 	UFUNCTION()
 	void OnBackToMainMenuButtonClick();
+	
+	void BackToGame();
+	void DisableButtons();
 
 	
 private:
@@ -44,7 +76,7 @@ private:
 	UButton* RestartButton;
 	
 	UPROPERTY(meta = (BindWidget))
-	UButton* OptionButton;
+	UButton* SettingButton;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* BackToMainMenuButton;
@@ -52,5 +84,23 @@ private:
 	// Button widget: ゲーム終了ボタン。
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitButton;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* FadeIn;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ResumeButtonHover;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* RestartButtonHover;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* SettingButtonHover;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* BackToMainMenuButtonHover;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* QuitButtonHover;
 	
 };
