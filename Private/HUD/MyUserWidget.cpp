@@ -8,6 +8,32 @@
 #include "HUD/FadeUI.h"
 
 
+void UMyUserWidget::OpenMapByName(FName MapName)
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* Controller = World->GetFirstPlayerController();
+		if (Controller)
+		{
+			// 特定のLevelを開く。
+			UGameplayStatics::OpenLevel(World, MapName);
+			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
+			UUserWidget::RemoveFromParent();
+			// Input modeを"game"に戻す。
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(Controller);
+			
+		}
+		
+	}
+}
+
+void UMyUserWidget::StartNewGame()
+{
+	OpenMapByName(NewGameMap);
+	
+}
+
 void UMyUserWidget::GenerateSettingsUI()
 {
 	UWorld* World = GetWorld();
@@ -18,27 +44,6 @@ void UMyUserWidget::GenerateSettingsUI()
 		{
 			SettingsButtonsUI = CreateWidget<USettingsButtonsUI>(Controller, USettingsButtonsClass);
 			SettingsButtonsUI->AddToViewport();
-			
-		}
-		
-	}
-	
-}
-
-void UMyUserWidget::StartNewGame()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller)
-		{
-			// 特定のLevelを開く。
-			UGameplayStatics::OpenLevel(World, FName("MyDefaultMap"));
-			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
-			UUserWidget::RemoveFromParent();
-			// Input modeを"game"に戻す。
-			UWidgetBlueprintLibrary::SetInputMode_GameOnly(Controller);
 			
 		}
 		
@@ -58,6 +63,17 @@ void UMyUserWidget::QuitGame()
 			UUserWidget::RemoveFromParent();
 			
 		}
+		
+	}
+	
+}
+
+void UMyUserWidget::CloseSettingsButtongsUI()
+{
+	if (SettingsButtonsUI)
+	{
+		// Close all UI related to Settings Buttons UI, Close Settings Buttons UI: Delay version.
+		SettingsButtonsUI->OnBackButtonClicked();
 		
 	}
 	

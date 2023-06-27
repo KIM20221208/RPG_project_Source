@@ -7,27 +7,35 @@
 #include "HUD/OverallScalabilityLevelTypes.h"
 #include "GraphicPresetButtonsUI.generated.h"
 
-class UButton;
-
 /**
- * ゲームの画質に関するSettings Buttons。
+ * ゲームの画質に関するSetting Buttons。
+ * Warning: Abandoned Now!
  */
+
+class UButton;
 
 UCLASS()
 class RPG_PROJECT_API UGraphicPresetButtonsUI : public UMyUserWidget
 {
 	GENERATED_BODY()
 
+	
+public:
+	// 本UIをcloseする。画質調整ブタンを押した後callされれる。
+	void CloseMe();
+	
 
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
 
-	//
+	// パラメータToSetより、ゲームの画質を調整する。
 	void SwitchOverallScalabilityLevel(EOverallScalabilityLevelState ToSet);
-	//
-	void CloseGraphicPresetButtonsUI();
-	
+
+
+	/**
+	 * クリックイベント。
+	 */
 	UFUNCTION()
 	void OnLowButtonClicked();
 	
@@ -42,19 +50,18 @@ protected:
 	
 
 private:
-	// Button widget: 
+	/** 
+	 * Bind to blueprint: Clickable widgets.
+	 */
 	UPROPERTY(meta = (BindWidget))
 	UButton* LowButton;
 	
-	// Button widget: 
 	UPROPERTY(meta = (BindWidget))
 	UButton* MediumButton;
 	
-	// Button widget: 
 	UPROPERTY(meta = (BindWidget))
 	UButton* HighButton;
-
-	// Button widget: 
+	
 	UPROPERTY(meta = (BindWidget))
 	UButton* UltraButton;
 

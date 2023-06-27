@@ -19,17 +19,38 @@ class RPG_PROJECT_API UInGamePauseUI : public UMyUserWidget
 
 	
 public:
+	/** <UMyUserWidget> */
 	// オプションUIからゲームに戻る。
 	UFUNCTION()
 	virtual void OnResumeButtonClick();
-
+	/** </UMyUserWidget> */
+	
 	
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
-	virtual void OnRestartButtonClick() override;
-	virtual void OnQuitButtonClick() override;
+	// UIモードからゲームモードに戻る。
+	void BackToGame();
+	// 一度ボタンを押した後、全てのボタンを押さえない様に設定する。プレイヤーが複数のボタンを早押しする事を防止。
+	void DisableButtons();
 
+
+	/**
+	 * クリックイベント。
+	 */
+	/** <UMyUserWidget> */
+	virtual void OnRestartButtonClick() override;
+	void BackToMainMenu();
+	virtual void OnQuitButtonClick() override;
+	/** </UMyUserWidget> */
+	
+	UFUNCTION()
+	void OnBackToMainMenuButtonClick();
+
+	
+	/**
+	 * UI FX.
+	 */
 	UFUNCTION()
 	void OnResumeButtonHovered();
 
@@ -59,16 +80,18 @@ protected:
 
 	UFUNCTION()
 	void OnQuitButtonUnhovered();
-	
+
 	UFUNCTION()
-	void OnBackToMainMenuButtonClick();
-	
-	void BackToGame();
-	void DisableButtons();
+	void FadeInFX();
+
+	UFUNCTION()
+	void FadeOutFX();
 
 	
 private:
-	// Button widget: ゲームリスタートボタン。
+	/** 
+	 * Bind to blueprint: Clickable widgets.
+	 */
 	UPROPERTY(meta = (BindWidget))
 	UButton* ResumeButton;
 	
@@ -80,11 +103,14 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* BackToMainMenuButton;
-
-	// Button widget: ゲーム終了ボタン。
+	
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitButton;
 
+	
+	/** 
+	 * Bind to blueprint: Widget animations.
+	 */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* FadeIn;
 	
@@ -102,5 +128,9 @@ private:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* QuitButtonHover;
+
+
+	// Timer設定に関する構造体、World->GetTimerManager().SetTimerメソッドのパラメータとして使われる。
+	FTimerHandle FadeTimerHandle;
 	
 };

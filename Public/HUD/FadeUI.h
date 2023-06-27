@@ -7,7 +7,7 @@
 #include "FadeUI.generated.h"
 
 /**
- * 
+ * UIが閉じる時、UIが閉じるFXに関するUI。
  */
 
 UCLASS()
@@ -21,6 +21,7 @@ public:
 
 	
 private:
+	// UIが閉じる時、UIが閉じるFX：黒いスクリーンの fade in FX。
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* fadeIn;
 	

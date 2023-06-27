@@ -5,11 +5,17 @@
 #include "Components/Button.h"
 #include "GameFramework/GameUserSettings.h"
 
+void UGraphicPresetButtonsUI::CloseMe()
+{
+	UUserWidget::RemoveFromParent();
+	
+}
+
 void UGraphicPresetButtonsUI::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	//
+	// イベントのバインド:
 	LowButton->OnClicked.AddDynamic(this, &UGraphicPresetButtonsUI::OnLowButtonClicked);
 	MediumButton->OnClicked.AddDynamic(this, &UGraphicPresetButtonsUI::OnMediumButtonClicked);
 	HighButton->OnClicked.AddDynamic(this, &UGraphicPresetButtonsUI::OnHighButtonClicked);
@@ -23,7 +29,9 @@ void UGraphicPresetButtonsUI::SwitchOverallScalabilityLevel(EOverallScalabilityL
 	if (GameUserSettings)
 	{
 		OverallScalabilityLevelState = ToSet;
+		// 列挙型変巣をInt型にcastする。
 		int32 EnumToInt = static_cast<int32>(OverallScalabilityLevelState);
+		// 画質を調整する。
 		GameUserSettings->SetOverallScalabilityLevel(EnumToInt);
 		GameUserSettings->ApplySettings(true);
     		
@@ -31,36 +39,30 @@ void UGraphicPresetButtonsUI::SwitchOverallScalabilityLevel(EOverallScalabilityL
 	
 }
 
-void UGraphicPresetButtonsUI::CloseGraphicPresetButtonsUI()
-{
-	UUserWidget::RemoveFromParent();
-	
-}
-
 void UGraphicPresetButtonsUI::OnLowButtonClicked()
 {
 	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Low);
-	CloseGraphicPresetButtonsUI();
+	CloseMe();
 	
 }
 
 void UGraphicPresetButtonsUI::OnMediumButtonClicked()
 {
 	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Medium);
-	CloseGraphicPresetButtonsUI();
+	CloseMe();
 	
 }
 
 void UGraphicPresetButtonsUI::OnHighButtonClicked()
 {
 	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_High);
-	CloseGraphicPresetButtonsUI();
+	CloseMe();
 	
 }
 
 void UGraphicPresetButtonsUI::OnUltraButtonClicked()
 {
 	SwitchOverallScalabilityLevel(EOverallScalabilityLevelState::EOSLS_Ultra);
-	CloseGraphicPresetButtonsUI();
+	CloseMe();
 	
 }

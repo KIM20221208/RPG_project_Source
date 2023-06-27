@@ -33,7 +33,9 @@ enum class EActionState : uint8
 	// P97.プレイヤー：攻撃アクションの状態。
 	EAS_Attacking UMETA(DisplayName = "Attacking"),
 	// P97.プレイヤー：武器装備アクションの状態。
-	EAS_EquippingWeapon UMETA(DisplayName = "_EquippingWeapon")
+	EAS_EquippingWeapon UMETA(DisplayName = "EquippingWeapon"),
+	// プレイヤー：UIモードでOccupiedされた状態。
+	EAS_OccupiedByUI UMETA(DisplayName = "OccupiedByUI")
 
 };
 

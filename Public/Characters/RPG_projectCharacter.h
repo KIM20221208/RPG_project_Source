@@ -62,6 +62,8 @@ public:
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	// P201.Getter: キャラが取っているモーション状況をreturn。
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
+	// Setter: Set ActionState.
+	FORCEINLINE void SetActionState(EActionState ToSet) { ActionState = ToSet; }
 
 	/** <IPickupInterface> */
 	// P206.Setter: Set Item to OverlappingItem.

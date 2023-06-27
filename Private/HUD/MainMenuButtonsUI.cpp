@@ -8,18 +8,18 @@ void UMainMenuButtonsUI::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	//
+	// 本UIが生成される時のFX。
 	FadeInFX();
 	
-	// OnRestartButtonClickメリットは親クラス（UMyUserWidget）に定義されている。
+	// イベントのバインド:
 	PlayButton->OnClicked.AddDynamic(this, &UMainMenuButtonsUI::OnRestartButtonClick);
 	PlayButton->OnHovered.AddDynamic(this, &UMainMenuButtonsUI::OnPlayButtonHovered);
 	PlayButton->OnUnhovered.AddDynamic(this, &UMainMenuButtonsUI::OnPlayButtonUnhovered);
-	//
+	
 	SettingsButton->OnClicked.AddDynamic(this, &UMainMenuButtonsUI::OnSettingsButtonClick);
 	SettingsButton->OnHovered.AddDynamic(this, &UMainMenuButtonsUI::OnSettingsButtonHovered);
 	SettingsButton->OnUnhovered.AddDynamic(this, &UMainMenuButtonsUI::OnSettingsButtonUnhovered);
-	//
+	
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenuButtonsUI::OnQuitButtonClick);
 	QuitButton->OnHovered.AddDynamic(this, &UMainMenuButtonsUI::OnQuitButtonHovered);
 	QuitButton->OnUnhovered.AddDynamic(this, &UMainMenuButtonsUI::OnQuitButtonUnhovered);

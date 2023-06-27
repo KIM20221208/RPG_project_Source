@@ -7,8 +7,9 @@
 #include "SettingsBackGroundUI.generated.h"
 
 /**
- * 
+ * SettingのBackground UI。
  */
+
 UCLASS()
 class RPG_PROJECT_API USettingsBackGroundUI : public UUserWidget
 {
@@ -16,24 +17,32 @@ class RPG_PROJECT_API USettingsBackGroundUI : public UUserWidget
 
 	
 public:
-	//
 	UFUNCTION()
-	void CloseSettingsBackGroundUI();
-	//
+	void CloseMe();
+
+	
+	/**
+	 * UI FX.
+	 */
 	UFUNCTION()
 	void FadeOutFX();
 
 	
 protected:
 	virtual void NativePreConstruct() override;
+
 	
-	//
+	/**
+	 * UI FX.
+	 */
 	UFUNCTION()
 	void FadeInFX();
 	
 
 private:
-	//
+	/** 
+	 * Bind to blueprint: Widget animations.
+	 */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* FadeIn;
 	

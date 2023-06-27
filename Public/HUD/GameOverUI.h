@@ -24,7 +24,9 @@ protected:
 	
 	
 private:
-	// Button widget: プレイヤーがクリックした後、ゲームをリスタートする。
+	/** 
+	 * Bind to blueprint: Button widgets.
+	 */
 	UPROPERTY(meta = (BindWidget))
 	UButton* RestartButton;
 	

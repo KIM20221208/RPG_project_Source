@@ -6,24 +6,34 @@
 #include "HUD/MyUserWidget.h"
 #include "ScreenResolutionButtonsUI.generated.h"
 
-class UButton;
 /**
  * 画面解像度の調整に関するSettings Buttons。
+ * Warning: Abandoned Now!
  */
+
+class UButton;
+
 UCLASS()
 class RPG_PROJECT_API UScreenResolutionButtonsUI : public UMyUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	// 本UIをcloseする。解像度調整ブタンを押した後callされれる。
+	UFUNCTION()
+	void CloseMe();
+
 
 protected:
 	virtual void NativePreConstruct() override;
 	
-	//
+	// X:Yより、画面解像度を調整する。
 	void SwitchScreenResolution(const int X, const int Y);
-	void CloseScreenResolutionButtonsUI();
+
 	
-	//
+	/**
+	 * クリックイベント。
+	 */
 	UFUNCTION()
 	void OnButton1280_720Clicked();
 	
@@ -35,6 +45,9 @@ protected:
 
 
 private:
+	/** 
+	 * Bind to blueprint: Clickable widgets.
+	 */
 	UPROPERTY(meta=(BindWidget))
 	UButton* Button1280_720;
 	

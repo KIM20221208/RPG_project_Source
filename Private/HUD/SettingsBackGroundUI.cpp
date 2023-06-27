@@ -11,7 +11,7 @@ void USettingsBackGroundUI::NativePreConstruct()
 	
 }
 
-void USettingsBackGroundUI::CloseSettingsBackGroundUI()
+void USettingsBackGroundUI::CloseMe()
 {
 	UUserWidget::RemoveFromParent();
 	

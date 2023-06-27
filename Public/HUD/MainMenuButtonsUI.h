@@ -6,11 +6,11 @@
 #include "HUD/MyUserWidget.h"
 #include "MainMenuButtonsUI.generated.h"
 
-class UButton;
-
 /**
  * メイン画面のブタンに関するUI
  */
+
+class UButton;
 
 UCLASS()
 class RPG_PROJECT_API UMainMenuButtonsUI : public UMyUserWidget
@@ -21,43 +21,64 @@ class RPG_PROJECT_API UMainMenuButtonsUI : public UMyUserWidget
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
+	
+	/** <UMyUserWidget> */
 	virtual void OnRestartButtonClick() override;
 	virtual void OnQuitButtonClick() override;
+	/** </UMyUserWidget> */
 
-	//
+	
+	/**
+	 * UI FX.
+	 */
 	UFUNCTION()
 	void OnPlayButtonHovered();
+	
 	UFUNCTION()
 	void OnPlayButtonUnhovered();
+	
 	UFUNCTION()
 	void OnSettingsButtonHovered();
+	
 	UFUNCTION()
 	void OnSettingsButtonUnhovered();
+	
 	UFUNCTION()
 	void OnQuitButtonHovered();
+	
 	UFUNCTION()
 	void OnQuitButtonUnhovered();
+
+	// 本UIが生成される時のFX。
 	UFUNCTION()
 	void FadeInFX();
+	
+	// 本UIがcloseされる時のFX。
 	UFUNCTION()
 	void FadeOutFX();
 
-	//
+	
+	// 一度ボタンを押した後、全てのボタンを押さえない様に設定する。プレイヤーが複数のボタンを早押しする事を防止。
 	void DisableButtons();
+
 	
 private:
-	// Button widget: プレイヤーがクリックした後、ゲームをリスタートする。
+	/** 
+	 * Bind to blueprint: Clickable widgets.
+	 */
 	UPROPERTY(meta = (BindWidget))
 	UButton* PlayButton;
 	
-	// Button widget: プレイヤーがクリックした後、ゲームをリスタートする。
 	UPROPERTY(meta = (BindWidget))
 	UButton* SettingsButton;
 	
-	// Button widget: プレイヤーがクリックした後、ゲームをリスタートする。
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitButton;
+	
 
+	/** 
+	 * Bind to blueprint: Widget animations.
+	 */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* PlayButtonHover;
 
@@ -66,7 +87,7 @@ private:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* QuitButtonHover;
-
+	
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* FadeIn;
 	

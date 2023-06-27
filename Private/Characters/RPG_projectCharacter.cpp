@@ -288,11 +288,13 @@ void ARPG_projectCharacter::ESCKeyPressed()
 	if (RPG_projectHUD->GetHUDState() == EHUDState::EHS_InGaming)
 	{
 		RPG_projectHUD->ShowInGamePauseUI();
+		ActionState = EActionState::EAS_OccupiedByUI;
 		
 	}
 	else if (RPG_projectHUD->GetHUDState() == EHUDState::EHS_InGamePause)
 	{
 		RPG_projectHUD->CloseInGamePauseUI();
+		ActionState = EActionState::EAS_Unoccupied;
 		
 	}
 	

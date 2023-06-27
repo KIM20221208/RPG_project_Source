@@ -4,9 +4,8 @@
 #include "HUD/SettingsButtonsUI.h"
 #include "Components/Button.h"
 #include "Components/CheckBox.h"
+#include "Components/ComboBoxString.h"
 #include "GameFramework/GameUserSettings.h"
-#include "HUD/ScreenResolutionButtonsUI.h"
-#include "HUD/GraphicPresetButtonsUI.h"
 #include "HUD/SettingsBackGroundUI.h"
 
 void USettingsButtonsUI::NativePreConstruct()
@@ -14,18 +13,14 @@ void USettingsButtonsUI::NativePreConstruct()
 	Super::NativePreConstruct();
 	GenerateSettingsBackGroundUI();
 
-	//
+	//本UIが生成される時のFX。
 	FadeInFX();
 
-	//
-	ScreenResolutionButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionButtonClicked);
-	ScreenResolutionButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionButtonHovered);
-	ScreenResolutionButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionButtonUnhovered);
+	// イベントのバインド:
+	ScreenResolutionComboBoxString->OnSelectionChanged.AddDynamic(this, &USettingsButtonsUI::OnScreenResolutionComboBoxStringSelectionChanged);
 
-	GraphicPresetButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetButtonClicked);
-	GraphicPresetButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetButtonHovered);
-	GraphicPresetButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetButtonUnhovered);
-
+	GraphicPresetComboBoxString->OnSelectionChanged.AddDynamic(this, &USettingsButtonsUI::OnGraphicPresetComboBoxStringSelectionChanged);
+	
 	FullScreenCheckBox->OnCheckStateChanged.AddDynamic(this, &USettingsButtonsUI::OnFullScreenCheckBoxStateChanged);
 	
 	BackButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnBackButtonClicked);
@@ -51,86 +46,43 @@ void USettingsButtonsUI::GenerateSettingsBackGroundUI()
 	
 }
 
-void USettingsButtonsUI::CloseSettingsButtonsUI()
+void USettingsButtonsUI::CloseMe()
 {
 	UUserWidget::RemoveFromParent();
 
-	// Close Settings BackGround.
+	// Close all related UI.
 	if (SettingsBackGroundUI)
 	{
-		SettingsBackGroundUI->CloseSettingsBackGroundUI();
+		SettingsBackGroundUI->CloseMe();
 		
 	}
 	
 }
 
-void USettingsButtonsUI::GenerateScreenResolutionButtonsUI()
+void USettingsButtonsUI::SwitchScreenResolution(const int X, const int Y)
 {
-	UWorld* World = GetWorld();
-	if (World)
+	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+	if (GameUserSettings)
 	{
-		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller && UScreenResolutionButtonsClass)
-		{
-			ScreenResolutionButtonsUI = CreateWidget<UScreenResolutionButtonsUI>(Controller, UScreenResolutionButtonsClass);
-			ScreenResolutionButtonsUI->AddToViewport();
-			
-		}
+		FIntPoint Resolution = FIntPoint(X, Y);
+		GameUserSettings->SetScreenResolution(Resolution);
+		GameUserSettings->ApplyResolutionSettings(false);
+		GameUserSettings->ApplySettings(true);
 		
 	}
 	
 }
 
-void USettingsButtonsUI::GenerateGraphicPresetButtonsUI()
+void USettingsButtonsUI::SwitchOverallScalabilityLevel(int32 ScalabilityLevel)
 {
-	UWorld* World = GetWorld();
-	if (World)
+	UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+	if (GameUserSettings)
 	{
-		APlayerController* Controller = World->GetFirstPlayerController();
-		if (Controller && UGraphicButtonsClass)
-		{
-			GraphicPresetButtonsUI = CreateWidget<UGraphicPresetButtonsUI>(Controller, UGraphicButtonsClass);
-			GraphicPresetButtonsUI->AddToViewport();
-			
-		}
-		
+		// 画質を調整する。
+		GameUserSettings->SetOverallScalabilityLevel(ScalabilityLevel);
+		GameUserSettings->ApplySettings(true);
+    		
 	}
-	
-}
-
-void USettingsButtonsUI::OnScreenResolutionButtonClicked()
-{
-	GenerateScreenResolutionButtonsUI();
-	
-}
-
-void USettingsButtonsUI::OnScreenResolutionButtonHovered()
-{
-	PlayAnimation(ScreenResolutionButtonHover);
-	
-}
-
-void USettingsButtonsUI::OnScreenResolutionButtonUnhovered()
-{
-	PlayAnimation(ScreenResolutionButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
-	
-}
-
-void USettingsButtonsUI::OnGraphicPresetButtonClicked()
-{
-	GenerateGraphicPresetButtonsUI();
-	
-}
-
-void USettingsButtonsUI::OnGraphicPresetButtonHovered()
-{
-	PlayAnimation(GraphicPresetButtonHover);
-	
-}
-
-void USettingsButtonsUI::OnGraphicPresetButtonUnhovered()
-{
-	PlayAnimation(GraphicPresetButtonHover, 0, 1, EUMGSequencePlayMode::Reverse);
 	
 }
 
@@ -157,18 +109,41 @@ void USettingsButtonsUI::OnFullScreenCheckBoxStateChanged(bool bChange)
 	
 }
 
+void USettingsButtonsUI::OnScreenResolutionComboBoxStringSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	
+	FString LeftString;
+	FString RightString;
+	// ComboBoxStringSelectionのStringから画像解析度をgetする。
+	SelectedItem.Split("*", &LeftString, &RightString);
+
+	// FStringをint型に変換する。
+	XCoordinate = FCString::Atoi(*LeftString);
+	YCoordinate = FCString::Atoi(*RightString);
+	// 画像解析度をsetする。
+	SwitchScreenResolution(XCoordinate, YCoordinate);
+	
+}
+
+void USettingsButtonsUI::OnGraphicPresetComboBoxStringSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	int32 SelectedIndex = GraphicPresetComboBoxString->FindOptionIndex(SelectedItem);
+	SwitchOverallScalabilityLevel(SelectedIndex);
+	
+}
+
 void USettingsButtonsUI::OnBackButtonClicked()
 {
 	DisableButtons();
 	FadeOutFX();
-	SettingsBackGroundUI->FadeOutFX();
+	SettingsBackGroundUI->FadeOutFX(); 
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		World->GetTimerManager().SetTimer(
 			FadeTimerHandle,
 			this,
-			&USettingsButtonsUI::CloseSettingsButtonsUI,
+			&USettingsButtonsUI::CloseMe,
 			CloseUIDelay,
 			false
 			);
@@ -191,9 +166,7 @@ void USettingsButtonsUI::OnBackButtonUnhovered()
 
 void USettingsButtonsUI::DisableButtons()
 {
-	//
-	ScreenResolutionButton->SetVisibility(ESlateVisibility::HitTestInvisible);
-	GraphicPresetButton->SetVisibility(ESlateVisibility::HitTestInvisible);
+	
 	FullScreenCheckBox->SetVisibility(ESlateVisibility::HitTestInvisible);
 	BackButton->SetVisibility(ESlateVisibility::HitTestInvisible);
 	

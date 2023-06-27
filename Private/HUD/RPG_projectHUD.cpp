@@ -45,8 +45,8 @@ void ARPG_projectHUD::ShowInGamePauseUI()
 		if (Controller && UInGamePauseClass)
 		{
 			// オプションUIの時、ゲームを一時停止する。
-			UGameplayStatics::SetGamePaused(World, true);
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller);
+			// UGameplayStatics::SetGamePaused(World, true);
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(Controller);
 			// マウスのコントロールを許可する。
 			Controller->bShowMouseCursor = true;
 			InGamePauseUI = CreateWidget<UInGamePauseUI>(Controller, UInGamePauseClass);
