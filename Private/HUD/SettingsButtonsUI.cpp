@@ -12,6 +12,11 @@ void USettingsButtonsUI::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 	GenerateSettingsBackGroundUI();
+	// Format widget selected options.
+	SetScreenResolutionComboBoxStringSelectedOption();
+	SetGraphicPresetComboBoxStringSelectedOption();
+	SetFullScreenCheckBoxCheckedState();
+	
 
 	//本UIが生成される時のFX。
 	FadeInFX();
@@ -26,6 +31,92 @@ void USettingsButtonsUI::NativePreConstruct()
 	BackButton->OnClicked.AddDynamic(this, &USettingsButtonsUI::OnBackButtonClicked);
 	BackButton->OnHovered.AddDynamic(this, &USettingsButtonsUI::OnBackButtonHovered);
 	BackButton->OnUnhovered.AddDynamic(this, &USettingsButtonsUI::OnBackButtonUnhovered);
+	
+}
+
+void USettingsButtonsUI::SetScreenResolutionComboBoxStringSelectedOption()
+{
+	if (ScreenResolutionComboBoxString)
+	{
+		UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+		if (GameUserSettings)
+		{
+			FIntPoint ScreenResolution = GameUserSettings->GetScreenResolution();
+			FString Option = FString::FromInt(ScreenResolution.X) + "*" + FString::FromInt(ScreenResolution.Y);
+			ScreenResolutionComboBoxString->SetSelectedOption(Option);
+			
+		}
+		
+	}
+	
+}
+
+FString USettingsButtonsUI::IntOverallScalabilityLevelToString(int32 OverallScalabilityLevel)
+{
+	FString Option;
+	switch (OverallScalabilityLevel)
+	{
+	case 0:
+		Option = "Low";
+		break;
+	case 1:
+		Option = "Medium";
+		break;
+	case 2:
+		Option = "High";
+		break;
+	case 3:
+		Option = "Ultra";
+		break;
+	default:
+		break;
+				
+	}
+	return Option;
+	
+}
+
+void USettingsButtonsUI::SetGraphicPresetComboBoxStringSelectedOption()
+{
+	if (GraphicPresetComboBoxString)
+	{
+		UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+		if (GameUserSettings)
+		{
+			int32 OverallScalabilityLevel = GameUserSettings->GetOverallScalabilityLevel();
+			FString Option;
+			
+			Option = IntOverallScalabilityLevelToString(OverallScalabilityLevel);
+			GraphicPresetComboBoxString->SetSelectedOption(Option);
+			
+		}
+		
+	}
+	
+}
+
+void USettingsButtonsUI::SetFullScreenCheckBoxCheckedState()
+{
+	if (FullScreenCheckBox)
+	{
+		UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings();
+		if (GameUserSettings)
+		{
+			EWindowMode::Type WindowMode = GameUserSettings->GetFullscreenMode();
+			if (WindowMode == EWindowMode::WindowedFullscreen)
+			{
+				FullScreenCheckBox->SetCheckedState(ECheckBoxState::Checked);
+				
+			}
+			else if (WindowMode == EWindowMode::Windowed)
+			{
+				FullScreenCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+				
+			}
+			
+		}
+		
+	}
 	
 }
 
@@ -95,7 +186,7 @@ void USettingsButtonsUI::OnFullScreenCheckBoxStateChanged(bool bChange)
 		// If Check Box is checked.
 		if(bChange)
 		{
-			GameUserSettings->SetFullscreenMode(EWindowMode::Fullscreen);
+			GameUserSettings->SetFullscreenMode(EWindowMode::WindowedFullscreen);
 			
 		}
 		else
@@ -111,7 +202,6 @@ void USettingsButtonsUI::OnFullScreenCheckBoxStateChanged(bool bChange)
 
 void USettingsButtonsUI::OnScreenResolutionComboBoxStringSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
-	
 	FString LeftString;
 	FString RightString;
 	// ComboBoxStringSelectionのStringから画像解析度をgetする。

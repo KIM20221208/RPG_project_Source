@@ -29,6 +29,10 @@ public:
 protected:
 	// equal to BeginPlay Function
 	virtual void NativePreConstruct() override;
+	void SetScreenResolutionComboBoxStringSelectedOption();
+	FString IntOverallScalabilityLevelToString(int32 OverallScalabilityLevel);
+	void SetGraphicPresetComboBoxStringSelectedOption();
+	void SetFullScreenCheckBoxCheckedState();
 	// 一度ボタンを押した後、全てのボタンを押さえない様に設定する。プレイヤーが複数のボタンを早押しする事を防止。
 	void DisableButtons();
 	// 本UIをcloseする。
