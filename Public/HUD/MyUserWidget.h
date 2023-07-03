@@ -60,7 +60,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category=OpenMapName)
 	FName MainMenuMap = FName("TestMap");
-	
+
 	
 private:
 	// UIが閉じる時のFX UI、エディタから代入される。

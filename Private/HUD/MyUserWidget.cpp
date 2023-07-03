@@ -16,8 +16,12 @@ void UMyUserWidget::OpenMapByName(FName MapName)
 		APlayerController* Controller = World->GetFirstPlayerController();
 		if (Controller)
 		{
+			// TODO: Path is hard coded, need optimize.
+			FString Directory = FString("/Game/Maps/") + MapName.ToString() + ".umap";
+			FSoftObjectPath ToOpenLevelPath(Directory);
+			TSoftObjectPtr<UWorld> ToOpenLevel(ToOpenLevelPath);
 			// 特定のLevelを開く。
-			UGameplayStatics::OpenLevel(World, MapName);
+			UGameplayStatics::OpenLevelBySoftObjectPtr(World, ToOpenLevel);
 			// UIをParentから削除する。同時にスクリーンから削除される。つまり、今は表示されているUIをスクリーンから削除する。
 			UUserWidget::RemoveFromParent();
 			// Input modeを"game"に戻す。
